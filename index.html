@@ -14,8 +14,8 @@
             --color-primario: #D92B2B;
             --color-secundario: #F2B705;
             --color-verde: #28a745;
-            --color-azul: #007bff; /* Lo dejamos por si se usa en 'En Cocina' */
-            --color-admin: var(--color-primario); /* <-- CAMBIO: Panel de Admin a Rojo */
+            --color-azul: #007bff;
+            --color-admin: var(--color-primario);
             --color-fondo: #F2F2F2;
             --color-texto: #333333;
             --color-blanco: #FFFFFF;
@@ -43,8 +43,8 @@
         .logo-container img { max-height: 100px; width: auto; vertical-align: middle; }
         
         #auth-btn {
-            display: none; /* Oculto por defecto */
-            background-color: var(--color-admin); /* <-- CAMBIO: Ahora usa la var de admin (Roja) */
+            display: none;
+            background-color: var(--color-admin);
             color: var(--color-blanco);
             border: none; padding: 12px 20px;
             font-size: 1rem; font-weight: bold;
@@ -61,13 +61,22 @@
         .main-view-section { display: none; }
         .main-view-section.active { display: block; }
         
-        /* --- Vista: Galería Menú --- */
         #menu-gallery-container {
-            display: grid; /* <-- CAMBIO: Grid aplicado al contenedor correcto */
+            display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             min-height: 300px;
         }
+        
+        /* CORRECCIÓN BUG VISTAS PEGADAS:
+           Asegura que solo el .active tenga display grid.
+           El .main-view-section.active se encarga del 'display: block' */
+        #menu-gallery.active {
+            display: block; /* O display: grid si el contenedor interno no es suficiente */
+        }
+
+
+        /* --- Vista: Galería Menú --- */
         .burger-card {
             background-color: var(--color-blanco);
             border-radius: 10px;
@@ -77,10 +86,9 @@
         }
         .burger-card img {
             width: 100%;
-            /* height: 200px; */ /* <-- CAMBIO: Eliminado */
-            aspect-ratio: 1 / 1; /* <-- CAMBIO: Imagen 1:1 */
+            aspect-ratio: 1 / 1;
             object-fit: cover;
-            background-color: #eee; /* Fondo por si la imagen es transparente */
+            background-color: #eee;
         }
         .burger-card-content { padding: 20px; }
         .burger-card h2 { margin-top: 0; color: var(--color-primario); font-size: 1.5rem; }
@@ -106,8 +114,6 @@
         .order-card .status { font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; display: block; }
         .order-card .timestamp { font-size: 0.85rem; color: #777; margin-bottom: 5px; display: block; }
         .order-card .completed-at { font-size: 0.85rem; color: var(--color-verde); font-weight: bold; display: block; }
-        
-        /* NUEVO: Estilos para lista de ingredientes en Cocina */
         .order-card .items-list { list-style: none; padding-left: 0; margin: 10px 0; }
         .order-card .items-list li.kitchen-item-card {
             padding: 10px 0;
@@ -130,12 +136,10 @@
             padding: 2px 0;
             margin: 0;
         }
-        
         .order-card .status-buttons { margin-top: 15px; display: flex; gap: 10px; }
         .status-btn { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; color: var(--color-blanco); font-weight: bold; cursor: pointer; }
         .status-btn.to-kitchen { background-color: var(--color-azul); }
         .status-btn.to-ready { background-color: var(--color-verde); }
-        
         #kitchen-history-container { margin-top: 40px; border-top: 2px solid #ccc; padding-top: 20px; }
         #kitchen-history-container h2 { text-align: center; color: var(--color-texto); }
         #load-history-btn { display: block; margin: 10px auto 20px auto; padding: 12px 25px; font-size: 1rem; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; cursor: pointer; }
@@ -146,8 +150,9 @@
         #admin-view h1 { color: var(--color-admin); }
         .admin-section { margin-top: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 5px; }
         .admin-section h2 { margin-top: 0; }
-        ..form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        /* CORRECCIÓN CSS PASSWORD INPUT */
         .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         .form-group textarea { min-height: 80px; }
         .form-button { background-color: var(--color-admin); color: var(--color-blanco); padding: 12px 20px; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; }
@@ -172,43 +177,14 @@
         #today-sales-total { font-size: 3rem; font-weight: bold; color: var(--color-verde); text-align: center; margin: 10px 0 20px 0; }
         #today-sales-list .sale-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--color-fondo); }
         #sales-history-list .history-day-group h4 { background-color: var(--color-fondo); padding: 10px; border-radius: 5px; margin: 15px 0 10px 0; display: flex; justify-content: space-between; }
-
-        /* NUEVO: Estilos para Reporte de Ventas Desplegable */
-        .sales-report-item {
-            background: #fdfdfd;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            margin-bottom: 8px;
-        }
-        .sales-report-item summary {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
+        .sales-report-item { background: #fdfdfd; border: 1px solid #eee; border-radius: 5px; margin-bottom: 8px; }
+        .sales-report-item summary { display: flex; justify-content: space-between; padding: 10px 15px; cursor: pointer; font-size: 1.1rem; }
         .sales-report-item summary:hover { background: #f9f9f9; }
-        .sales-report-item summary span {
-            color: var(--color-primario);
-            font-weight: 500;
-        }
+        .sales-report-item summary span { color: var(--color-primario); font-weight: 500; }
         .sales-report-item summary strong { color: var(--color-verde); }
-        .sales-item-details {
-            padding: 10px 20px 15px 40px;
-            background: #fdfdfd;
-            border-top: 1px dashed #ddd;
-        }
-        .sales-item-details ul {
-            list-style: disc;
-            padding-left: 20px;
-            margin: 0;
-        }
-        .sales-day-details {
-            padding-left: 15px;
-            border-left: 3px solid var(--color-fondo);
-            margin-top: 10px;
-        }
-
+        .sales-item-details { padding: 10px 20px 15px 40px; background: #fdfdfd; border-top: 1px dashed #ddd; }
+        .sales-item-details ul { list-style: disc; padding-left: 20px; margin: 0; }
+        .sales-day-details { padding-left: 15px; border-left: 3px solid var(--color-fondo); margin-top: 10px; }
 
         /* --- Overlay (Fondo oscuro) --- */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 198; }
@@ -232,19 +208,13 @@
         .panel-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
         #order-menu-items .item-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background-color: var(--color-secundario); color: var(--color-texto); border: none; border-radius: 5px; cursor: pointer; }
         #customization-section { margin-top: 20px; border-top: 2px solid var(--color-fondo); padding-top: 20px; }
-        
-        /* CSS RESTAURADO: Lista de ingredientes vertical */
         #ingredients-list label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 5px;
+            display: block; margin-bottom: 10px;
+            font-size: 1.1rem; cursor: pointer;
+            padding: 8px; border-radius: 5px;
         }
         #ingredients-list label:hover { background-color: var(--color-fondo); }
         #ingredients-list input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
-        
         #add-item-to-cart-btn { width: 100%; padding: 12px; margin-top: 15px; background-color: var(--color-primario); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .panel-footer { padding: 20px; border-top: 2px solid var(--color-fondo); background-color: var(--color-blanco); }
         #order-summary-list { max-height: 150px; overflow-y: auto; margin-bottom: 15px; border-bottom: 1px solid var(--color-fondo); }
@@ -259,16 +229,31 @@
         #admin-panel {
             position: fixed; top: 0; left: -300px;
             width: 300px; height: 100vh;
-            background-color: var(--color-admin); /* <-- CAMBIO: Ahora usa la var (Roja) */
+            background-color: var(--color-admin);
             box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
             z-index: 200;
             transition: left 0.3s ease-in-out;
             padding-top: 80px;
             box-sizing: border-box;
+            display: flex; /* Para poner el logout abajo */
+            flex-direction: column; /* Para poner el logout abajo */
         }
         #admin-panel.open { left: 0; }
-        #admin-panel .admin-nav-btn { display: block; width: 100%; padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--color-blanco); background-color: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); /* Borde más claro */ text-align: left; cursor: pointer; transition: background-color 0.2s; }
+        #admin-panel-nav-main {
+            flex-grow: 1; /* Empuja el logout hacia abajo */
+        }
+        #admin-panel .admin-nav-btn { display: block; width: 100%; padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--color-blanco); background-color: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); text-align: left; cursor: pointer; transition: background-color 0.2s; }
         #admin-panel .admin-nav-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
+        
+        /* NUEVO: Estilo para botón de logout */
+        #admin-panel .logout-btn {
+            background-color: #a12020; /* Rojo más oscuro */
+            border-bottom: none;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+        #admin-panel .logout-btn:hover {
+            background-color: #8c1b1b;
+        }
 
         /* --- Modales --- */
         .modal { display: none; position: fixed; z-index: 250; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
@@ -323,10 +308,13 @@
     </aside>
     
     <aside id="admin-panel">
-        <button class="admin-nav-btn" id="admin-nav-menu">Ver Menú</button>
-        <button class="admin-nav-btn" id="admin-nav-create">Crear Pedido</button>
-        <button class="admin-nav-btn" id="admin-nav-kitchen">Ver Cocina</button>
-        <button class="admin-nav-btn" id="admin-nav-admin">Administración</button>
+        <div id="admin-panel-nav-main">
+            <button class="admin-nav-btn" id="admin-nav-menu">Ver Menú</button>
+            <button class="admin-nav-btn" id="admin-nav-create">Crear Pedido</button>
+            <button class="admin-nav-btn" id="admin-nav-kitchen">Ver Cocina</button>
+            <button class="admin-nav-btn" id="admin-nav-admin">Administración</button>
+        </div>
+        <button class="admin-nav-btn logout-btn" id="admin-nav-logout">Cerrar Sesión</button>
     </aside>
 
     <main>
@@ -486,7 +474,8 @@
             const navCreateBtn = document.getElementById('admin-nav-create');
             const navKitchenBtn = document.getElementById('admin-nav-kitchen');
             const navAdminBtn = document.getElementById('admin-nav-admin');
-
+            const navLogoutBtn = document.getElementById('admin-nav-logout'); // <-- NUEVO
+            
             // --- DOM Panel Pedido ---
             const orderMenuContainer = document.getElementById('order-menu-items');
             const customizationSection = document.getElementById('customization-section');
@@ -584,6 +573,7 @@
                 const pass = passwordInput.value;
                 if (user === 'CHEPINAS' && pass === 'BURGUERS') {
                     isLoggedIn = true;
+                    localStorage.setItem('isLoggedIn', 'true'); // <-- NUEVO: Guardar en storage
                     authBtn.classList.add('panel-btn');
                     closeModal(loginModal);
                     loginErrorMsg.style.display = 'none';
@@ -591,6 +581,27 @@
                     passwordInput.value = '';
                 } else {
                     loginErrorMsg.style.display = 'block';
+                }
+            }
+            
+            // --- NUEVO: Lógica de Logout ---
+            navLogoutBtn.addEventListener('click', logout);
+            
+            function logout() {
+                isLoggedIn = false;
+                isAdminViewUnlocked = false; // Resetea el candado de admin
+                localStorage.removeItem('isLoggedIn'); // <-- NUEVO: Borra la sesión
+                
+                authBtn.classList.remove('panel-btn'); // Oculta el botón "PANEL"
+                closePanel(adminPanel); // Cierra el panel
+                showView('menu-gallery'); // Regresa al menú
+            }
+
+            // --- NUEVO: Checar Sesión al Cargar ---
+            function checkPersistentLogin() {
+                if (localStorage.getItem('isLoggedIn') === 'true') {
+                    isLoggedIn = true;
+                    authBtn.classList.add('panel-btn');
                 }
             }
             
@@ -669,7 +680,6 @@
                     await db.collection('menu').doc(id).update({ isVisible: target.checked });
                 }
                 
-                // Hacemos que el clic en el botón (o el ícono dentro de él) funcione
                 if (target.classList.contains('delete-menu-item-btn') || target.closest('.delete-menu-item-btn')) {
                     const deleteId = target.dataset.id || target.closest('.delete-menu-item-btn').dataset.id;
                     if (confirm('¿Seguro que quieres eliminar este producto?')) {
@@ -898,7 +908,6 @@
                 }
             });
             
-            // (Cocina) Renderizador de Tarjeta de Pedido (¡ACTUALIZADO!)
             function renderOrderCard(order, orderId, container, isHistory = false) {
                 let createdAt = order.createdAt ? order.createdAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' }) : '...';
                 let completedAtHtml = '';
@@ -906,7 +915,6 @@
                     completedAtHtml = `<span class="completed-at">Finalizado: ${order.finalizadoAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' })}</span>`;
                 }
 
-                // --- CAMBIO: Generar lista de ingredientes ---
                 const itemsHtml = order.items.map(item => {
                     const ingredientsListHtml = (item.customIngredients && item.customIngredients.length > 0)
                         ? '<ul>' + item.customIngredients.map(ing => `<li>${ing}</li>`).join('') + '</ul>'
@@ -955,7 +963,7 @@
                 await db.collection("pedidos").doc(id).update(updateData);
             }
 
-            // --- Lógica de REPORTE DE VENTAS (¡ACTUALIZADO!) ---
+            // --- Lógica de REPORTE DE VENTAS ---
             function listenToTodaySales() {
                 if (salesListener) return;
                 
@@ -972,7 +980,6 @@
                             const order = doc.data();
                             total += order.total;
                             
-                            // --- CAMBIO: Usar <details> para desplegar ---
                             const itemsSummaryHtml = order.items.map(item => `<li>${item.name} ($${item.price.toFixed(2)})</li>`).join('');
                             todaySalesListEl.innerHTML += `
                                 <details class="sales-report-item">
@@ -1007,7 +1014,6 @@
                         return;
                     }
                     
-                    // --- CAMBIO: Agrupar pedidos completos, no solo totales ---
                     const salesByDay = {};
                     snapshot.docs.forEach(doc => {
                         const order = doc.data();
@@ -1020,7 +1026,6 @@
                     });
                     
                     for (const day in salesByDay) {
-                        // --- CAMBIO: Generar <details> para cada pedido ---
                         const ordersHtml = salesByDay[day].orders.map(order => {
                             const itemsSummaryHtml = order.items.map(item => `<li>${item.name} ($${item.price.toFixed(2)})</li>`).join('');
                             return `
@@ -1057,6 +1062,7 @@
 
 
             // --- Inicialización ---
+            checkPersistentLogin(); // <-- NUEVO: Revisa el storage al cargar
             fetchMenuAndPopulate();
             renderCart();
             showView('menu-gallery');
