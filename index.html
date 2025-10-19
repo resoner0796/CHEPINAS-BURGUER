@@ -11,11 +11,11 @@
     
     <style>
         :root {
-            --color-primario: #D92B2B; /* Rojo Ketchup */
-            --color-secundario: #F2B705; /* Amarillo Mostaza/Queso */
+            --color-primario: #D92B2B;
+            --color-secundario: #F2B705;
             --color-verde: #28a745;
             --color-azul: #007bff;
-            --color-admin: #4F5D75; /* Gris/Azul para Admin */
+            --color-admin: #4F5D75;
             --color-fondo: #F2F2F2;
             --color-texto: #333333;
             --color-blanco: #FFFFFF;
@@ -24,8 +24,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--color-fondo);
             color: var(--color-texto);
         }
@@ -44,11 +43,19 @@
         }
         .header-side { min-width: 150px; flex-basis: 150px; }
         .header-side.right { flex-basis: 150px; }
-        .logo-container { flex-grow: 1; text-align: center; }
-        .logo-container img { max-height: 100px; width: auto; vertical-align: middle; }
+        
+        .logo-container {
+            flex-grow: 1;
+            text-align: center;
+            cursor: pointer; /* <-- NUEVO: Indica que se puede hacer clic */
+        }
+        .logo-container img {
+            max-height: 100px; width: auto; vertical-align: middle;
+        }
         
         #auth-btn {
-            background-color: var(--color-primario);
+            display: none; /* <-- CAMBIO: Oculto por defecto */
+            background-color: var(--color-primario); /* <-- CAMBIO: Vuelve a ser rojo */
             color: var(--color-blanco);
             border: none; padding: 12px 20px;
             font-size: 1rem; font-weight: bold;
@@ -57,7 +64,10 @@
             transition: background-color 0.2s;
             min-width: 150px;
         }
-        #auth-btn.panel-btn { background-color: var(--color-admin); } /* <-- CAMBIO DE COLOR */
+        #auth-btn.panel-btn {
+            display: block; /* <-- CAMBIO: Se muestra al loguear */
+            background-color: var(--color-primario); /* <-- CAMBIO: Color corregido */
+        }
         #auth-btn:hover { opacity: 0.8; }
 
         /* --- Vistas Principales (Contenedor) --- */
@@ -66,22 +76,18 @@
             max-width: 1200px;
             margin: 20px auto;
         }
+        .main-view-section { display: none; }
+        .main-view-section.active { display: block; }
         
-        /* Oculta todas las secciones de vista por defecto */
-        .main-view-section {
-            display: none;
-        }
-        /* Muestra solo la activa */
-        .main-view-section.active {
-            display: block;
-        }
-
-        /* --- Vista: Galería Menú --- */
-        #menu-gallery {
+        /* CORRECCIÓN BUG VISTAS: Mover 'display: grid' aquí */
+        #menu-gallery.active {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
+
+        /* --- Vista: Galería Menú --- */
+        #menu-gallery-container { min-height: 300px; }
         .burger-card {
             background-color: var(--color-blanco);
             border-radius: 10px;
@@ -89,7 +95,6 @@
             overflow: hidden;
             transition: transform 0.2s ease;
         }
-        .burger-card:hover { transform: translateY(-5px); }
         .burger-card img { width: 100%; height: 200px; object-fit: cover; }
         .burger-card-content { padding: 20px; }
         .burger-card h2 { margin-top: 0; color: var(--color-primario); font-size: 1.5rem; }
@@ -98,16 +103,8 @@
         .burger-card li { margin-bottom: 6px; }
 
         /* --- Vista: Cocina --- */
-        #kitchen-view h1 {
-            color: var(--color-primario); text-align: center;
-            border-bottom: 2px solid var(--color-fondo);
-            padding-bottom: 10px;
-        }
-        #kitchen-orders-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
+        #kitchen-view h1 { color: var(--color-primario); text-align: center; border-bottom: 2px solid var(--color-fondo); padding-bottom: 10px; }
+        #kitchen-orders-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .order-card {
             background-color: var(--color-blanco);
             border-radius: 8px;
@@ -125,165 +122,128 @@
         .order-card .items-list li { border-bottom: 1px dashed #ccc; padding: 5px 0; }
         .order-card .total { font-size: 1.4rem; font-weight: bold; text-align: right; color: var(--color-primario); margin-top: 15px; }
         .order-card .timestamp { font-size: 0.85rem; color: #777; margin-bottom: 5px; display: block; }
-        .order-card .completed-at { /* NUEVO */
-            font-size: 0.85rem; color: var(--color-verde); 
-            font-weight: bold; display: block;
-        }
+        .order-card .completed-at { font-size: 0.85rem; color: var(--color-verde); font-weight: bold; display: block; }
         .order-card .status-buttons { margin-top: 15px; display: flex; gap: 10px; }
-        .status-btn {
-            flex-grow: 1; padding: 10px;
-            border: none; border-radius: 5px;
-            color: var(--color-blanco); font-weight: bold;
-            cursor: pointer;
-        }
+        .status-btn { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; color: var(--color-blanco); font-weight: bold; cursor: pointer; }
         .status-btn.to-kitchen { background-color: var(--color-azul); }
         .status-btn.to-ready { background-color: var(--color-verde); }
-        
-        /* NUEVO: Historial de Cocina */
-        #kitchen-history-container {
-            margin-top: 40px;
-            border-top: 2px solid #ccc;
-            padding-top: 20px;
-        }
+        #kitchen-history-container { margin-top: 40px; border-top: 2px solid #ccc; padding-top: 20px; }
         #kitchen-history-container h2 { text-align: center; color: var(--color-texto); }
-        #load-history-btn {
-            display: block;
-            margin: 10px auto 20px auto;
-            padding: 12px 25px;
-            font-size: 1rem;
-            background-color: var(--color-admin);
-            color: var(--color-blanco);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #kitchen-history-list .history-day-group h3 {
-            background-color: var(--color-blanco);
-            padding: 10px;
-            border-radius: 5px;
-            border-bottom: 2px solid var(--color-primario);
-            margin-top: 20px;
-        }
+        #load-history-btn { display: block; margin: 10px auto 20px auto; padding: 12px 25px; font-size: 1rem; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; cursor: pointer; }
+        #kitchen-history-list .history-day-group h3 { background-color: var(--color-blanco); padding: 10px; border-radius: 5px; border-bottom: 2px solid var(--color-primario); margin-top: 20px; }
         
         /* --- Vista: Administración --- */
-        #admin-view {
-            padding: 20px;
-            background-color: var(--color-blanco);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px var(--color-sombra);
-        }
+        #admin-view { padding: 20px; background-color: var(--color-blanco); border-radius: 8px; box-shadow: 0 2px 10px var(--color-sombra); }
         #admin-view h1 { color: var(--color-admin); }
-        .admin-section {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px dashed #ccc;
-            border-radius: 5px;
-        }
+        .admin-section { margin-top: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 5px; }
         .admin-section h2 { margin-top: 0; }
-        .admin-section button { /* Placeholder */
-            background-color: #6c757d; color: var(--color-blanco);
-            padding: 10px 15px; border: none; border-radius: 5px;
+        
+        /* Formulario genérico */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-group textarea { min-height: 80px; }
+        .form-button {
+            background-color: var(--color-admin); color: var(--color-blanco);
+            padding: 12px 20px; border: none; border-radius: 5px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+        }
+        .form-button:hover { opacity: 0.8; }
+        
+        /* Switch de visibilidad */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--color-verde); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Lista de Gestión de Menú */
+        #menu-management-list { margin-top: 20px; }
+        .menu-item-admin-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .menu-item-admin-card img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 15px; }
+        .menu-item-admin-card .info { flex-grow: 1; }
+        .menu-item-admin-card .info strong { font-size: 1.1rem; }
+        .menu-item-admin-card .info span { color: #555; }
+        .menu-item-admin-card .actions button {
+            background: none; border: none;
+            font-size: 1.2rem; cursor: pointer;
+            margin-left: 10px;
+        }
+        .delete-menu-item-btn { color: var(--color-primario); }
+
+        /* Reporte de Ventas */
+        #sales-report-view h3 { color: var(--color-verde); font-size: 1.5rem; }
+        #today-sales-total {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--color-verde);
+            text-align: center;
+            margin: 10px 0 20px 0;
+        }
+        #today-sales-list .sale-item {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; border-bottom: 1px solid var(--color-fondo);
+        }
+        #sales-history-list .history-day-group h4 {
+            background-color: var(--color-fondo);
+            padding: 10px; border-radius: 5px;
+            margin: 15px 0 10px 0;
+            display: flex; justify-content: space-between;
         }
 
         /* --- Overlay (Fondo oscuro) --- */
-        #overlay {
-            display: none; position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 198;
-        }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 198; }
         #overlay.show { display: block; }
         
-        /* --- Panel Lateral de Pedido (Derecho) --- */
+        /* --- Panel Lateral de Pedido (Izquierdo) --- */
         #side-panel {
-            position: fixed; top: 0; right: -450px; /* <-- CAMBIO A DERECHA */
+            position: fixed; top: 0; left: -450px; /* <-- CAMBIO: Vuelve a la izquierda */
             width: 450px; height: 100vh;
             background-color: var(--color-blanco);
-            box-shadow: -4px 0px 15px rgba(0,0,0,0.2);
+            box-shadow: 4px 0px 15px rgba(0,0,0,0.2); /* <-- CAMBIO: Sombra derecha */
             z-index: 200;
-            transition: right 0.3s ease-in-out;
+            transition: left 0.3s ease-in-out;
             display: flex; flex-direction: column;
         }
-        #side-panel.open { right: 0; } /* <-- CAMBIO A DERECHA */
-        .panel-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px;
-            background-color: var(--color-primario);
-            color: var(--color-blanco);
-        }
+        #side-panel.open { left: 0; } /* <-- CAMBIO: Abre desde la izquierda */
+        
+        .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--color-primario); color: var(--color-blanco); }
         .panel-header h2 { margin: 0; font-size: 1.5rem; }
-        #close-panel-btn {
-            background: none; border: none;
-            color: var(--color-blanco);
-            font-size: 2rem; font-weight: bold;
-            cursor: pointer;
-        }
+        #close-panel-btn { background: none; border: none; color: var(--color-blanco); font-size: 2rem; font-weight: bold; cursor: pointer; }
         .panel-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        #order-menu-items .item-btn {
-            display: block; width: 100%;
-            padding: 15px; margin-bottom: 10px;
-            font-size: 1.1rem; font-weight: bold;
-            background-color: var(--color-secundario);
-            color: var(--color-texto);
-            border: none; border-radius: 5px;
-            cursor: pointer;
-        }
-        #customization-section {
-            margin-top: 20px;
-            border-top: 2px solid var(--color-fondo);
-            padding-top: 20px;
-        }
-        #add-item-to-cart-btn {
-            width: 100%; padding: 12px;
-            margin-top: 15px;
-            background-color: var(--color-primario);
-            color: var(--color-blanco);
-            border: none; border-radius: 5px;
-            font-size: 1.1rem; font-weight: bold;
-            cursor: pointer;
-        }
-        .panel-footer {
-            padding: 20px;
-            border-top: 2px solid var(--color-fondo);
-            background-color: var(--color-blanco);
-        }
-        #order-summary-list {
-            max-height: 150px; overflow-y: auto;
-            margin-bottom: 15px; border-bottom: 1px solid var(--color-fondo);
-        }
-        .cart-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 5px;
-            font-size: 0.95rem;
-        }
+        #order-menu-items .item-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background-color: var(--color-secundario); color: var(--color-texto); border: none; border-radius: 5px; cursor: pointer; }
+        #customization-section { margin-top: 20px; border-top: 2px solid var(--color-fondo); padding-top: 20px; }
+        #add-item-to-cart-btn { width: 100%; padding: 12px; margin-top: 15px; background-color: var(--color-primario); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .panel-footer { padding: 20px; border-top: 2px solid var(--color-fondo); background-color: var(--color-blanco); }
+        #order-summary-list { max-height: 150px; overflow-y: auto; margin-bottom: 15px; border-bottom: 1px solid var(--color-fondo); }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; font-size: 0.95rem; }
         .cart-item .name { font-weight: bold; }
-        .delete-item-btn {
-            background-color: #ff4d4d; color: white;
-            border: none; border-radius: 50%;
-            width: 22px; height: 22px;
-            font-weight: bold; font-size: 0.9rem;
-            cursor: pointer; line-height: 20px;
-            text-align: center; margin-left: 10px;
-        }
-        #total-display {
-            font-size: 1.5rem; font-weight: bold;
-            color: var(--color-primario);
-            text-align: right; margin-bottom: 15px;
-        }
-        #finalize-order-btn {
-            width: 100%; padding: 15px;
-            background-color: var(--color-verde);
-            color: var(--color-blanco);
-            border: none; border-radius: 5px;
-            font-size: 1.2rem; font-weight: bold;
-            cursor: pointer;
-        }
+        .delete-item-btn { background-color: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; font-size: 0.9rem; cursor: pointer; line-height: 20px; text-align: center; margin-left: 10px; }
+        #total-display { font-size: 1.5rem; font-weight: bold; color: var(--color-primario); text-align: right; margin-bottom: 15px; }
+        #finalize-order-btn { width: 100%; padding: 15px; background-color: var(--color-verde); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
         #finalize-order-btn:disabled { background-color: #aaa; cursor: not-allowed; }
         
-        /* --- NUEVO: Panel Lateral de Admin (Izquierdo) --- */
+        /* --- Panel Lateral de Admin (Izquierdo) --- */
         #admin-panel {
-            position: fixed; top: 0; left: -300px; /* <-- OCULTO A LA IZQUIERDA */
+            position: fixed; top: 0; left: -300px;
             width: 300px; height: 100vh;
             background-color: var(--color-admin);
             box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
@@ -293,101 +253,27 @@
             box-sizing: border-box;
         }
         #admin-panel.open { left: 0; }
-        #admin-panel .admin-nav-btn {
-            display: block;
-            width: 100%;
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--color-blanco);
-            background-color: transparent;
-            border: none;
-            border-bottom: 1px solid #6c7a95;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        #admin-panel .admin-nav-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
+        #admin-panel .admin-nav-btn { display: block; width: 100%; padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--color-blanco); background-color: transparent; border: none; border-bottom: 1px solid #6c7a95; text-align: left; cursor: pointer; transition: background-color 0.2s; }
+        #admin-panel .admin-nav-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
 
         /* --- Modales --- */
-        .modal {
-            display: none; position: fixed; z-index: 250;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-        }
+        .modal { display: none; position: fixed; z-index: 250; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
         .modal.show { display: flex; }
-        .modal-content {
-            background-color: var(--color-blanco);
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            position: relative; /* Para el botón de cerrar */
-        }
-        .modal-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
+        .modal-content { background-color: var(--color-blanco); margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%; position: relative; }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; }
         .modal-content h2 { margin-top: 0; color: var(--color-texto); }
         
         /* Modal Éxito */
         #success-modal .icon { font-size: 4rem; color: var(--color-verde); }
-        #close-modal-btn {
-            margin-top: 20px; background-color: var(--color-primario);
-            color: var(--color-blanco); padding: 10px 20px;
-            border: none; border-radius: 5px;
-            font-size: 1rem; cursor: pointer;
-        }
         
         /* Modal Login */
         #login-modal .modal-content { text-align: left; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        #login-submit-btn {
-            width: 100%; padding: 12px;
-            background-color: var(--color-primario);
-            color: var(--color-blanco);
-            border: none; border-radius: 5px;
-            font-size: 1.1rem; cursor: pointer;
-        }
-        .error-msg { /* Clase genérica de error */
-            color: var(--color-primario);
-            text-align: center;
-            display: none;
-            margin-top: 10px;
-        }
+        .error-msg { color: var(--color-primario); text-align: center; display: none; margin-top: 10px; }
+        #login-submit-btn { width: 100%; padding: 12px; background-color: var(--color-primario); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; }
         
-        /* Modal Admin Password (NUEVO) */
+        /* Modal Admin Password */
         #admin-password-modal .modal-content { text-align: left; }
-        #admin-pass-submit-btn {
-            width: 100%; padding: 12px;
-            background-color: var(--color-admin);
-            color: var(--color-blanco);
-            border: none; border-radius: 5px;
-            font-size: 1.1rem; cursor: pointer;
-        }
+        #admin-pass-submit-btn { width: 100%; padding: 12px; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; }
 
     </style>
 </head>
@@ -395,9 +281,9 @@
 
     <header class="main-header">
         <div class="header-side left">
-            <button id="auth-btn">Iniciar Sesión</button>
+            <button id="auth-btn">PANEL</button>
         </div>
-        <div class="logo-container">
+        <div class="logo-container" id="logo-clickable-area">
             <img src="logo.png" alt="Logo del Negocio">
         </div>
         <div class="header-side right"></div>
@@ -438,49 +324,16 @@
     <main>
         
         <section id="menu-gallery" class="main-view-section active">
-            <div class="burger-card">
-                <img src="sencilla.png" alt="Hamburguesa Sencilla">
-                <div class="burger-card-content">
-                    <h2>Sencilla</h2> <div class="price">$70.00</div>
-                    <ul>
-                        <li>🧀 Queso amarillo</li> <li>🍖 Jamón</li> <li>🥑 Aguacate</li>
-                        <li>🧅 Cebolla</li> <li>🍅 Tomate</li> <li>🥬 Lechuga</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="burger-card">
-                <img src="hawaiana.png" alt="Hamburguesa Hawaiana">
-                <div class="burger-card-content">
-                    <h2>Hawaiana</h2> <div class="price">$85.00</div>
-                    <ul>
-                        <li>🧀 Queso amarillo</li> <li>🍖 Jamón</li> <li>🍍 Piña</li>
-                        <li>🥑 Aguacate</li> <li>🍅 Tomate</li> <li>🧅 Cebolla</li> <li>🥬 Lechuga</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="burger-card">
-                <img src="especial.png" alt="Hamburguesa Especial">
-                <div class="burger-card-content">
-                    <h2>Especial</h2> <div class="price">$110.00</div>
-                    <ul>
-                        <li>🥩 Doble Carne</li> <li>🧀 Queso Manchego</li> <li>🥓 Tocino</li>
-                        <li>🍖 Jamón</li> <li>🥑 Aguacate</li> <li>🍅 Tomate</li>
-                        <li>🧅 Cebolla</li> <li>🥬 Lechuga</li>
-                    </ul>
-                </div>
-            </div>
+            <div id="menu-gallery-container"></div>
         </section>
         
         <section id="kitchen-view" class="main-view-section">
             <h1>Pedidos del Día</h1>
-            <div id="kitchen-orders-list">
-                </div>
-            
+            <div id="kitchen-orders-list"></div>
             <div id="kitchen-history-container">
                 <h2>Historial de Pedidos</h2>
                 <button id="load-history-btn">Cargar Historial (Días Anteriores)</button>
-                <div id="kitchen-history-list">
-                    </div>
+                <div id="kitchen-history-list"></div>
             </div>
         </section>
         
@@ -489,14 +342,51 @@
             
             <div id="sales-report-view" class="admin-section">
                 <h2>Reporte de Ventas</h2>
-                <p>Aquí se mostrarán las ventas del día en tiempo real y los reportes históricos.</p>
-                <button disabled>Generar Reporte (Próximamente)</button>
+                <h3>Ventas de Hoy (Tiempo Real)</h3>
+                <div id="today-sales-total">$0.00</div>
+                <h4>Pedidos Completados Hoy:</h4>
+                <div id="today-sales-list">
+                    <p>Esperando pedidos...</p>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Historial de Ventas</h3>
+                <button id="load-sales-history-btn" class="form-button">Cargar Historial</button>
+                <div id="sales-history-list" style="margin-top: 15px;"></div>
             </div>
             
             <div id="menu-management-view" class="admin-section">
                 <h2>Gestión de Menú</h2>
-                <p>Aquí podrás agregar, editar y ocultar productos del menú dinámicamente desde Firebase.</p>
-                <button disabled>Gestionar Menú (Próximamente)</button>
+                <form id="add-menu-item-form">
+                    <h3>Agregar Nuevo Producto</h3>
+                    <div class="form-group">
+                        <label for="item-name">Nombre</label>
+                        <input type="text" id="item-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-price">Precio (Ej: 85)</label>
+                        <input type="number" id="item-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-image-url">URL de Imagen (Ej: hawaiana.png)</label>
+                        <input type="text" id="item-image-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-ingredients">Ingredientes (uno por línea)</label>
+                        <textarea id="item-ingredients" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-is-visible">Visible en Menú</label>
+                        <label class="switch">
+                            <input type="checkbox" id="item-is-visible" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="form-button">Guardar Producto</button>
+                </form>
+                
+                <h3 style="margin-top: 30px;">Menú Actual</h3>
+                <div id="menu-management-list">
+                    </div>
             </div>
         </section>
     
@@ -505,9 +395,8 @@
     <div id="success-modal" class="modal">
         <div class="modal-content">
             <span class="modal-close-btn" id="close-modal-btn">&times;</span>
-            <div class="icon">✅</div>
-            <h2>¡Pedido Enviado!</h2>
-            <p>El pedido se ha enviado a la cocina correctamente.</p>
+            <div class="icon">✅</div> <h2>¡Éxito!</h2>
+            <p id="success-modal-message">La operación se completó.</p>
         </div>
     </div>
     
@@ -558,27 +447,24 @@
         
 
         document.addEventListener('DOMContentLoaded', () => {
-
-            const menuItems = [
-                { id: 'sencilla', name: 'Sencilla', price: 70, ingredients: ['Queso amarillo', 'Jamón', 'Aguacate', 'Cebolla', 'Tomate', 'Lechuga'] },
-                { id: 'hawaiana', name: 'Hawaiana', price: 85, ingredients: ['Queso amarillo', 'Jamón', 'Piña', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga'] },
-                { id: 'especial', name: 'Especial', price: 110, ingredients: ['Doble Carne', 'Queso Manchego', 'Tocino', 'Jamón', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga'] }
-            ];
             
             // --- Estado Global ---
+            let menuItemsCache = []; // <-- NUEVO: Cache del menú desde Firebase
             let currentOrderItem = null;
             let fullOrder = [];
             let isLoggedIn = false;
-            let isAdminViewUnlocked = false; // Nuevo estado para pass de admin
-            let orderListener = null; // Listener de pedidos del día
+            let isAdminViewUnlocked = false;
+            let kitchenOrderListener = null; // Listener de cocina
+            let salesListener = null; // Listener de ventas
 
             // --- Elementos del DOM (Generales) ---
             const overlay = document.getElementById('overlay');
             const authBtn = document.getElementById('auth-btn');
+            const logoClickableArea = document.getElementById('logo-clickable-area'); // <-- NUEVO
             
             // --- Elementos del DOM (Vistas) ---
             const mainViews = document.querySelectorAll('.main-view-section');
-            const menuGallery = document.getElementById('menu-gallery');
+            const menuGalleryContainer = document.getElementById('menu-gallery-container'); // <-- NUEVO
             const kitchenView = document.getElementById('kitchen-view');
             const kitchenOrdersList = document.getElementById('kitchen-orders-list');
             const loadHistoryBtn = document.getElementById('load-history-btn');
@@ -588,7 +474,7 @@
             // --- Elementos del DOM (Paneles) ---
             const sidePanel = document.getElementById('side-panel');
             const closePanelBtn = document.getElementById('close-panel-btn');
-            const adminPanel = document.getElementById('admin-panel'); // <-- NUEVO
+            const adminPanel = document.getElementById('admin-panel');
             
             // --- Elementos del DOM (Navegación Admin) ---
             const navMenuBtn = document.getElementById('admin-nav-menu');
@@ -608,103 +494,114 @@
             
             // --- Elementos del DOM (Modales) ---
             const successModal = document.getElementById('success-modal');
+            const successModalMessage = document.getElementById('success-modal-message');
             const closeModalBtn = document.getElementById('close-modal-btn');
             const loginModal = document.getElementById('login-modal');
             const loginCloseBtn = document.getElementById('login-close-btn');
             const loginSubmitBtn = document.getElementById('login-submit-btn');
             const loginErrorMsg = document.getElementById('login-error-msg');
-            const passwordInput = document.getElementById('password'); // Input de pass
+            const passwordInput = document.getElementById('password');
+            const adminPasswordModal = document.getElementById('admin-password-modal');
+            const adminPassCloseBtn = document.getElementById('admin-pass-close-btn');
+            const adminPassSubmitBtn = document.getElementById('admin-pass-submit-btn');
+            const adminPasswordInput = document.getElementById('admin-password');
+            const adminPassErrorMsg = document.getElementById('admin-pass-error-msg');
             
-            const adminPasswordModal = document.getElementById('admin-password-modal'); // <-- NUEVO
-            const adminPassCloseBtn = document.getElementById('admin-pass-close-btn'); // <-- NUEVO
-            const adminPassSubmitBtn = document.getElementById('admin-pass-submit-btn'); // <-- NUEVO
-            const adminPasswordInput = document.getElementById('admin-password'); // <-- NUEVO
-            const adminPassErrorMsg = document.getElementById('admin-pass-error-msg'); // <-- NUEVO
-
+            // --- Elementos del DOM (Admin: Gestión Menú) ---
+            const addMenuItemForm = document.getElementById('add-menu-item-form');
+            const menuManagementList = document.getElementById('menu-management-list');
+            
+            // --- Elementos del DOM (Admin: Reporte Ventas) ---
+            const todaySalesTotalEl = document.getElementById('today-sales-total');
+            const todaySalesListEl = document.getElementById('today-sales-list');
+            const loadSalesHistoryBtn = document.getElementById('load-sales-history-btn');
+            const salesHistoryListEl = document.getElementById('sales-history-list');
 
             // --- Funciones de Modales y Paneles ---
-            function openPanel(panel) {
-                panel.classList.add('open');
-                overlay.classList.add('show');
-            }
+            function openPanel(panel) { panel.classList.add('open'); overlay.classList.add('show'); }
             function closePanel(panel) {
                 panel.classList.remove('open');
-                if (!document.querySelector('.modal.show') && !document.querySelector('aside.open')) {
-                    overlay.classList.remove('show');
-                }
+                checkOverlay();
             }
-            function openModal(modal) {
-                modal.classList.add('show');
-                overlay.classList.add('show');
-            }
+            function openModal(modal) { modal.classList.add('show'); overlay.classList.add('show'); }
             function closeModal(modal) {
                 modal.classList.remove('show');
-                if (!document.querySelector('.modal.show') && !document.querySelector('aside.open')) {
+                checkOverlay();
+            }
+            // Revisa si algún panel o modal está abierto antes de cerrar el overlay
+            function checkOverlay() {
+                const isOpen = document.querySelector('.modal.show') || document.querySelector('aside.open');
+                if (!isOpen) {
                     overlay.classList.remove('show');
                 }
+            }
+            function showSuccessModal(message) {
+                successModalMessage.textContent = message;
+                openModal(successModal);
             }
             
             // --- Lógica de Vistas (Router) ---
             function showView(viewId) {
-                // Oculta todos los paneles laterales
                 closePanel(sidePanel);
                 closePanel(adminPanel);
                 
-                // Si el listener de cocina está activo, lo detiene
-                if (viewId !== 'kitchen-view' && orderListener) {
-                    console.log("Deteniendo listener de cocina...");
-                    orderListener(); // Llama a la función 'unsubscribe'
-                    orderListener = null;
+                // Detener listeners activos
+                if (viewId !== 'kitchen-view' && kitchenOrderListener) {
+                    kitchenOrderListener(); // Llama a la función 'unsubscribe'
+                    kitchenOrderListener = null;
+                }
+                if (viewId !== 'admin-view' && salesListener) {
+                    salesListener();
+                    salesListener = null;
                 }
                 
                 if (viewId === 'admin-view') {
                     if (isAdminViewUnlocked) {
-                        // Si ya está desbloqueado, solo muestra la vista
                         setActiveView(viewId);
+                        // Iniciar listeners de admin
+                        listenToTodaySales();
+                        loadMenuItemsForAdmin(); // Carga el menú para editar
                     } else {
-                        // Si no, pide la contraseña
                         openModal(adminPasswordModal);
                     }
                 } else if (viewId === 'kitchen-view') {
                     setActiveView(viewId);
-                    listenToOrders(); // Inicia el listener de pedidos
+                    listenToKitchenOrders(); // Inicia el listener de pedidos
                 } else {
                     setActiveView(viewId);
                 }
             }
             
             function setActiveView(viewId) {
-                mainViews.forEach(view => {
-                    view.classList.remove('active');
-                });
+                mainViews.forEach(view => view.classList.remove('active'));
                 document.getElementById(viewId).classList.add('active');
             }
 
             // --- Lógica de Autenticación (Login) ---
+            logoClickableArea.addEventListener('click', () => {
+                if (!isLoggedIn) {
+                    openModal(loginModal);
+                }
+                // Si ya está logueado, el clic en el logo no hace nada
+                // (el botón "PANEL" es la vía de entrada)
+            });
+
             authBtn.addEventListener('click', () => {
                 if (isLoggedIn) {
-                    openPanel(adminPanel); // <-- ABRE EL PANEL DE ADMIN
-                } else {
-                    openModal(loginModal);
+                    openPanel(adminPanel);
                 }
             });
             
             loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
             loginSubmitBtn.addEventListener('click', attemptLogin);
-            passwordInput.addEventListener('keypress', (e) => { // <-- LOGIN CON ENTER
-                if (e.key === 'Enter') {
-                    attemptLogin();
-                }
-            });
+            passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptLogin(); });
 
             function attemptLogin() {
                 const user = document.getElementById('username').value;
                 const pass = passwordInput.value;
-                
                 if (user === 'CHEPINAS' && pass === 'BURGUERS') {
                     isLoggedIn = true;
-                    authBtn.textContent = 'PANEL';
-                    authBtn.classList.add('panel-btn');
+                    authBtn.classList.add('panel-btn'); // Muestra el botón "PANEL"
                     closeModal(loginModal);
                     loginErrorMsg.style.display = 'none';
                     document.getElementById('username').value = '';
@@ -718,7 +615,7 @@
             navMenuBtn.addEventListener('click', () => showView('menu-gallery'));
             navCreateBtn.addEventListener('click', () => {
                 closePanel(adminPanel);
-                openPanel(sidePanel); // Abre el panel de crear pedido
+                openPanel(sidePanel);
             });
             navKitchenBtn.addEventListener('click', () => showView('kitchen-view'));
             navAdminBtn.addEventListener('click', () => showView('admin-view'));
@@ -726,17 +623,13 @@
             // --- Lógica de Contraseña de Admin ---
             adminPassCloseBtn.addEventListener('click', () => closeModal(adminPasswordModal));
             adminPassSubmitBtn.addEventListener('click', attemptAdminUnlock);
-            adminPasswordInput.addEventListener('keypress', (e) => { // <-- LOGIN CON ENTER
-                if (e.key === 'Enter') {
-                    attemptAdminUnlock();
-                }
-            });
+            adminPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptAdminUnlock(); });
             
             function attemptAdminUnlock() {
                 if (adminPasswordInput.value === 'password') {
                     isAdminViewUnlocked = true;
                     closeModal(adminPasswordModal);
-                    setActiveView('admin-view');
+                    showView('admin-view'); // Llama a showView de nuevo para que ejecute los listeners
                     adminPasswordInput.value = '';
                     adminPassErrorMsg.style.display = 'none';
                 } else {
@@ -744,23 +637,130 @@
                 }
             }
             
-
-            // --- Lógica del Panel de Pedido (Creación) ---
-            closePanelBtn.addEventListener('click', () => closePanel(sidePanel));
+            // --- Lógica de GESTIÓN DE MENÚ (NUEVO) ---
             
+            // (Admin) Escucha el formulario para agregar items
+            addMenuItemForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newItem = {
+                    name: document.getElementById('item-name').value,
+                    price: parseFloat(document.getElementById('item-price').value),
+                    imageUrl: document.getElementById('item-image-url').value,
+                    ingredients: document.getElementById('item-ingredients').value.split('\n').filter(Boolean), // Separa por líneas
+                    isVisible: document.getElementById('item-is-visible').checked,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                try {
+                    await db.collection('menu').add(newItem);
+                    showSuccessModal('Producto agregado al menú.');
+                    addMenuItemForm.reset();
+                } catch (err) {
+                    console.error("Error agregando item: ", err);
+                    alert("Error al guardar producto.");
+                }
+            });
+
+            // (Admin) Carga los items del menú en el panel de admin
+            function loadMenuItemsForAdmin() {
+                db.collection('menu').orderBy('name').onSnapshot(snapshot => {
+                    menuManagementList.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const item = { ...doc.data(), id: doc.id };
+                        const card = document.createElement('div');
+                        card.className = 'menu-item-admin-card';
+                        card.innerHTML = `
+                            <img src="${item.imageUrl}" alt="${item.name}">
+                            <div class="info">
+                                <strong>${item.name}</strong><br>
+                                <span>$${item.price.toFixed(2)} - ${item.isVisible ? 'Visible' : 'Oculto'}</span>
+                            </div>
+                            <div class="actions">
+                                <label class="switch">
+                                    <input type="checkbox" class="toggle-visibility-btn" data-id="${item.id}" ${item.isVisible ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                                <button class="delete-menu-item-btn" data-id="${item.id}">🗑️</button>
+                            </div>
+                        `;
+                        menuManagementList.appendChild(card);
+                    });
+                });
+            }
+            
+            // (Admin) Listeners para botones de eliminar/ocultar
+            menuManagementList.addEventListener('click', async (e) => {
+                const id = e.target.dataset.id;
+                if (!id) return;
+                
+                // Botón de visibilidad
+                if (e.target.classList.contains('toggle-visibility-btn')) {
+                    const isVisible = e.target.checked;
+                    await db.collection('menu').doc(id).update({ isVisible: isVisible });
+                }
+                
+                // Botón de eliminar
+                if (e.target.classList.contains('delete-menu-item-btn')) {
+                    if (confirm('¿Seguro que quieres eliminar este producto?')) {
+                        await db.collection('menu').doc(id).delete();
+                        showSuccessModal('Producto eliminado.');
+                    }
+                }
+            });
+
+            // (Público) Carga el menú visible para clientes y panel de pedidos
+            function fetchMenuAndPopulate() {
+                db.collection('menu').where('isVisible', '==', true).orderBy('name').onSnapshot(snapshot => {
+                    menuItemsCache = []; // Limpia el cache
+                    snapshot.forEach(doc => {
+                        menuItemsCache.push({ ...doc.data(), id: doc.id });
+                    });
+                    
+                    populateMenuGallery(); // Re-dibuja la galería
+                    populateOrderMenu(); // Re-dibuja el panel de pedidos
+                });
+            }
+
+            // (Público) Dibuja la galería principal
+            function populateMenuGallery() {
+                menuGalleryContainer.innerHTML = '';
+                menuItemsCache.forEach(item => {
+                    const ingredientsHtml = item.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                    const card = document.createElement('div');
+                    card.className = 'burger-card';
+                    card.innerHTML = `
+                        <img src="${item.imageUrl}" alt="${item.name}">
+                        <div class="burger-card-content">
+                            <h2>${item.name}</h2>
+                            <div class="price">$${item.price.toFixed(2)}</div>
+                            <ul>${ingredientsHtml}</ul>
+                        </div>
+                    `;
+                    menuGalleryContainer.appendChild(card);
+                });
+            }
+
+            // (Público) Dibuja los botones del panel de pedido
             function populateOrderMenu() {
                 orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>';
-                menuItems.forEach(item => {
+                menuItemsCache.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'item-btn';
                     button.textContent = `${item.name} - $${item.price.toFixed(2)}`;
                     button.dataset.itemId = item.id;
-                    button.addEventListener('click', () => showCustomization(item));
+                    button.addEventListener('click', () => showCustomization(item.id));
                     orderMenuContainer.appendChild(button);
                 });
             }
 
-            function showCustomization(item) {
+            // --- Lógica del Panel de Pedido (Creación) ---
+            closePanelBtn.addEventListener('click', () => closePanel(sidePanel));
+
+            function showCustomization(itemId) {
+                // Busca el item en el cache
+                const item = menuItemsCache.find(i => i.id === itemId);
+                if (!item) return;
+                
                 currentOrderItem = { ...item, customIngredients: [...item.ingredients] };
                 customBurgerName.textContent = `Personalizar: ${item.name}`;
                 ingredientsList.innerHTML = '';
@@ -843,26 +843,32 @@
             // --- Lógica de Firebase (Guardar Pedido) ---
             finalizeOrderBtn.addEventListener('click', async () => {
                 if (fullOrder.length === 0) return;
-
                 finalizeOrderBtn.disabled = true;
                 finalizeOrderBtn.textContent = 'Enviando...';
                 
+                // Limpia los items para guardar solo lo necesario
+                const cleanItems = fullOrder.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    customIngredients: item.customIngredients
+                }));
+
                 const orderData = {
-                    items: fullOrder,
+                    items: cleanItems,
                     total: fullOrder.reduce((sum, item) => sum + item.price, 0),
                     status: 'Pendiente',
                     folio: `FOLIO-${Date.now().toString().slice(-6)}`,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    finalizadoAt: null // <-- NUEVO: Inicia como nulo
+                    finalizadoAt: null
                 };
                 
                 try {
-                    const docRef = await db.collection("pedidos").add(orderData);
-                    console.log("Pedido guardado con ID: ", docRef.id);
-                    openModal(successModal);
+                    await db.collection("pedidos").add(orderData);
+                    showSuccessModal('¡Pedido Enviado a Cocina!');
                 } catch (e) {
                     console.error("Error al agregar documento: ", e);
-                    alert("Error al enviar el pedido. Intenta de nuevo.");
+                    alert("Error al enviar el pedido.");
                 } finally {
                     closePanel(sidePanel);
                     resetOrder();
@@ -872,21 +878,19 @@
             closeModalBtn.addEventListener('click', () => closeModal(successModal));
             
             // --- Lógica de Cocina (Leer Pedidos HOY) ---
-            function listenToOrders() {
-                if (orderListener) { // Previene listeners duplicados
-                    console.log("Listener ya activo.");
-                    return;
-                }
-                
-                // Calcula el inicio del día de HOY
+            function getStartOfToday() {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                const startOfToday = firebase.firestore.Timestamp.fromDate(today);
+                return firebase.firestore.Timestamp.fromDate(today);
+            }
 
-                console.log("Iniciando listener para pedidos de HOY (después de:", startOfToday.toDate(), ")");
+            function listenToKitchenOrders() {
+                if (kitchenOrderListener) return; // Previene duplicados
                 
-                orderListener = db.collection("pedidos")
-                    .where("createdAt", ">=", startOfToday) // <-- SOLO PEDIDOS DE HOY
+                const startOfToday = getStartOfToday();
+                
+                kitchenOrderListener = db.collection("pedidos")
+                    .where("createdAt", ">=", startOfToday)
                     .orderBy("createdAt", "desc")
                     .onSnapshot((snapshot) => {
                         kitchenOrdersList.innerHTML = '';
@@ -903,91 +907,62 @@
                     });
             }
             
-            // --- Lógica de Historial (Leer Pedidos Antiguos) ---
+            // (Cocina) Cargar Historial
             loadHistoryBtn.addEventListener('click', async () => {
                 loadHistoryBtn.disabled = true;
                 loadHistoryBtn.textContent = 'Cargando...';
                 kitchenHistoryList.innerHTML = '';
                 
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const startOfToday = firebase.firestore.Timestamp.fromDate(today);
-
                 try {
                     const snapshot = await db.collection("pedidos")
-                        .where("createdAt", "<", startOfToday) // <-- SOLO PEDIDOS ANTIGUOS
+                        .where("createdAt", "<", getStartOfToday())
                         .orderBy("createdAt", "desc")
-                        .limit(50) // Traemos los últimos 50 históricos
+                        .limit(50)
                         .get();
                         
                     if (snapshot.empty) {
-                        kitchenHistoryList.innerHTML = '<p>No hay historial de pedidos.</p>';
+                        kitchenHistoryList.innerHTML = '<p>No hay historial de pedidos.</D>';
                         return;
                     }
                     
-                    let currentDay = null;
-                    let dayGroupHtml = '';
-
+                    const groupedByDay = {};
                     snapshot.docs.forEach(doc => {
                         const order = doc.data();
                         const orderDay = order.createdAt.toDate().toLocaleDateString('es-MX', { dateStyle: 'full' });
-                        
-                        // Si es un nuevo día, crea un nuevo grupo
-                        if (orderDay !== currentDay) {
-                            if (dayGroupHtml !== '') { // Cierra el div anterior
-                                dayGroupHtml += '</div>';
-                                kitchenHistoryList.innerHTML += dayGroupHtml;
-                            }
-                            // Inicia nuevo grupo
-                            currentDay = orderDay;
-                            dayGroupHtml = `<div class="history-day-group"><h3>${orderDay}</h3>`;
+                        if (!groupedByDay[orderDay]) {
+                            groupedByDay[orderDay] = [];
                         }
-                        
-                        // Añade la tarjeta de pedido (sin botones)
-                        dayGroupHtml += renderOrderCard(order, doc.id, null, true); // true = isHistory
+                        groupedByDay[orderDay].push(renderOrderCard(order, doc.id, null, true));
                     });
                     
-                    // Cierra el último grupo
-                    if (dayGroupHtml !== '') {
-                        dayGroupHtml += '</div>';
-                        kitchenHistoryList.innerHTML += dayGroupHtml;
+                    for (const day in groupedByDay) {
+                        kitchenHistoryList.innerHTML += `<div class="history-day-group"><h3>${day}</h3>${groupedByDay[day].join('')}</div>`;
                     }
 
                 } catch (e) {
                     console.error("Error cargando historial: ", e);
-                    kitchenHistoryList.innerHTML = '<p>Error al cargar historial.</p>';
                 } finally {
                     loadHistoryBtn.disabled = false;
                     loadHistoryBtn.textContent = 'Cargar Historial (Días Anteriores)';
                 }
             });
             
-            // --- Renderizador de Tarjeta de Pedido (Reutilizable) ---
+            // (Cocina) Renderizador de Tarjeta de Pedido
             function renderOrderCard(order, orderId, container, isHistory = false) {
-                let createdAt = 'Cargando...';
-                if (order.createdAt && order.createdAt.toDate) {
-                    createdAt = order.createdAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' });
-                }
-                
-                // NUEVO: Formatear fecha de finalización
+                let createdAt = order.createdAt ? order.createdAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' }) : '...';
                 let completedAtHtml = '';
-                if (order.status === 'Listo' && order.finalizadoAt && order.finalizadoAt.toDate) {
-                    const completedTime = order.finalizadoAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' });
-                    completedAtHtml = `<span class="completed-at">Finalizado: ${completedTime}</span>`;
+                if (order.status === 'Listo' && order.finalizadoAt) {
+                    completedAtHtml = `<span class="completed-at">Finalizado: ${order.finalizadoAt.toDate().toLocaleString('es-MX', { timeStyle: 'short' })}</span>`;
                 }
 
                 const itemsHtml = order.items.map(item => `<li>${item.name}</li>`).join('');
                 
-                // Oculta botones si es historial
                 const buttonsHtml = isHistory ? '' : `
                     <div class="status-buttons">
-                        ${order.status === 'Pendiente' ? 
-                            `<button class="status-btn to-kitchen" data-id="${orderId}" data-status="En Cocina">Mover a Cocina</button>` : ''}
-                        ${order.status === 'En Cocina' ? 
-                            `<button class="status-btn to-ready" data-id="${orderId}" data-status="Listo">Marcar como Listo</button>` : ''}
+                        ${order.status === 'Pendiente' ? `<button class="status-btn to-kitchen" data-id="${orderId}" data-status="En Cocina">Mover a Cocina</button>` : ''}
+                        ${order.status === 'En Cocina' ? `<button class="status-btn to-ready" data-id="${orderId}" data-status="Listo">Marcar como Listo</button>` : ''}
                     </div>
                 `;
-
                 const cardHtml = `
                     <div class="order-card status-${order.status.replace(' ', '-')}">
                         <h3><span class="folio">${order.folio}</span></h3>
@@ -999,15 +974,11 @@
                         ${buttonsHtml}
                     </div>
                 `;
-                
-                if (container) {
-                    container.innerHTML += cardHtml; // Añade al contenedor (vista en vivo)
-                } else {
-                    return cardHtml; // Devuelve el HTML (para historial)
-                }
+                if (container) container.innerHTML += cardHtml;
+                else return cardHtml;
             }
             
-            // Listener para botones de estado (Cocina)
+            // (Cocina) Listener para botones de estado
             kitchenOrdersList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('status-btn')) {
                     const id = e.target.dataset.id;
@@ -1016,27 +987,100 @@
                 }
             });
             
-            // Actualizar estado en Firebase
+            // (Cocina) Actualizar estado en Firebase
             async function updateOrderStatus(id, status) {
                 let updateData = { status: status };
-                
-                // NUEVO: Añade la fecha de finalización
                 if (status === 'Listo') {
                     updateData.finalizadoAt = firebase.firestore.FieldValue.serverTimestamp();
                 }
-                
-                try {
-                    await db.collection("pedidos").doc(id).update(updateData);
-                    console.log(`Pedido ${id} actualizado a ${status}`);
-                } catch (e) {
-                    console.error("Error al actualizar estado: ", e);
-                }
+                await db.collection("pedidos").doc(id).update(updateData);
             }
 
+            // --- Lógica de REPORTE DE VENTAS (NUEVO) ---
+            
+            // (Admin) Listener para ventas de hoy
+            function listenToTodaySales() {
+                if (salesListener) return; // Previene duplicados
+                
+                salesListener = db.collection("pedidos")
+                    .where("createdAt", ">=", getStartOfToday())
+                    .where("status", "==", "Listo") // Solo ventas completadas
+                    .onSnapshot(snapshot => {
+                        let total = 0;
+                        todaySalesListEl.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            todaySalesListEl.innerHTML = '<p>No hay ventas completadas hoy.</p>';
+                        }
+
+                        snapshot.docs.forEach(doc => {
+                            const order = doc.data();
+                            total += order.total;
+                            todaySalesListEl.innerHTML += `
+                                <div class="sale-item">
+                                    <span>${order.folio}</span>
+                                    <strong>$${order.total.toFixed(2)}</strong>
+                                </div>
+                            `;
+                        });
+                        todaySalesTotalEl.textContent = `$${total.toFixed(2)}`;
+                    }, (error) => {
+                        console.error("Error escuchando ventas: ", error);
+                    });
+            }
+            
+            // (Admin) Cargar historial de ventas
+            loadSalesHistoryBtn.addEventListener('click', async () => {
+                loadSalesHistoryBtn.disabled = true;
+                loadSalesHistoryBtn.textContent = 'Cargando...';
+                salesHistoryListEl.innerHTML = '';
+                
+                try {
+                    const snapshot = await db.collection("pedidos")
+                        .where("createdAt", "<", getStartOfToday())
+                        .where("status", "==", "Listo") // Solo ventas completadas
+                        .orderBy("createdAt", "desc")
+                        .get();
+                        
+                    if (snapshot.empty) {
+                        salesHistoryListEl.innerHTML = '<p>No hay historial de ventas.</p>';
+                        return;
+                    }
+                    
+                    const salesByDay = {};
+                    snapshot.docs.forEach(doc => {
+                        const order = doc.data();
+                        const orderDay = order.createdAt.toDate().toLocaleDateString('es-MX', { dateStyle: 'full' });
+                        if (!salesByDay[orderDay]) {
+                            salesByDay[orderDay] = 0;
+                        }
+                        salesByDay[orderDay] += order.total;
+                    });
+                    
+                    for (const day in salesByDay) {
+                        salesHistoryListEl.innerHTML += `
+                            <div class="history-day-group">
+                                <h4>
+                                    <span>${day}</span>
+                                    <strong>$${salesByDay[day].toFixed(2)}</strong>
+                                </h4>
+                            </div>
+                        `;
+                    }
+
+                } catch (e) {
+                    console.error("Error cargando historial de ventas: ", e);
+                } finally {
+                    loadSalesHistoryBtn.disabled = false;
+                    loadSalesHistoryBtn.textContent = 'Cargar Historial';
+                }
+            });
+
+
             // --- Inicialización ---
-            populateOrderMenu();
+            fetchMenuAndPopulate(); // <-- Carga el menú desde Firebase al inicio
             renderCart();
-            showView('menu-gallery'); // Inicia en el menú
+            showView('menu-gallery');
             
             // Clicks en Overlay (para cerrar todo)
             overlay.addEventListener('click', () => {
