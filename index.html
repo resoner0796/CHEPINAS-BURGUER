@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hamburguesas - Centro de Pedidos</title>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     
     <style>
-        /* --- Variables de Color (Tema Hamburguesa) --- */
         :root {
             --color-primario: #D92B2B; /* Rojo Ketchup */
             --color-secundario: #F2B705; /* Amarillo Mostaza/Queso */
-            --color-verde: #28a745;      /* Verde Éxito */
-            --color-fondo: #F2F2F2;      /* Fondo Claro */
-            --color-texto: #333333;      /* Texto Oscuro */
+            --color-verde: #28a745;
+            --color-azul: #007bff;
+            --color-fondo: #F2F2F2;
+            --color-texto: #333333;
             --color-blanco: #FFFFFF;
             --color-sombra: rgba(0, 0, 0, 0.1);
         }
 
-        /* --- Estilos Generales --- */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -30,7 +29,7 @@
             color: var(--color-texto);
         }
 
-        /* --- Header (Logo y Botón de Pedido) --- */
+        /* --- Header (Logo Centrado y Botón Izquierda) --- */
         header.main-header {
             width: 100%;
             background-color: var(--color-blanco);
@@ -42,16 +41,30 @@
             display: flex; /* <-- CAMBIO */
             justify-content: space-between; /* <-- CAMBIO */
             align-items: center; /* <-- CAMBIO */
-            box-sizing: border-box; /* Asegura que el padding no desborde */
+            box-sizing: border-box;
         }
 
-        header.main-header .logo-container img {
-            max-height: 60px; /* Reducí un poco para que quepa el botón */
+        .header-side { /* Contenedor para botón y para placeholder */
+            min-width: 150px; /* Ancho del botón para balancear */
+            flex-basis: 150px;
+        }
+        
+        .header-side.right { /* Placeholder derecho */
+            flex-basis: 150px;
+        }
+        
+        .logo-container { /* Contenedor de logo centrado */
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .logo-container img {
+            max-height: 100px; /* <-- CAMBIO (Logo más grande) */
             width: auto;
             vertical-align: middle;
         }
         
-        #header-order-btn { /* <-- NUEVO ESTILO PARA EL BOTÓN */
+        #auth-btn { /* <-- NUEVO ID (antes header-order-btn) */
             background-color: var(--color-primario);
             color: var(--color-blanco);
             border: none;
@@ -62,22 +75,113 @@
             z-index: 199;
             border-radius: 8px;
             transition: background-color 0.2s;
+            min-width: 150px; /* Ancho fijo */
+        }
+        
+        #auth-btn.panel-btn { /* Estilo cuando dice "PANEL" */
+            background-color: var(--color-azul);
         }
 
-        #header-order-btn:hover {
-            background-color: #A62020; /* Rojo más oscuro */
+        #auth-btn:hover {
+            opacity: 0.8;
         }
 
-        /* --- Galería del Menú Principal --- */
-        #menu-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        /* --- Vistas Principales (Galería y Cocina) --- */
+        main {
             padding: 20px;
             max-width: 1200px;
             margin: 20px auto;
         }
+        
+        #menu-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        #kitchen-view {
+            display: none; /* Oculto por defecto */
+        }
+        
+        #kitchen-view h1 {
+            color: var(--color-primario);
+            text-align: center;
+        }
+        
+        #kitchen-orders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
 
+        /* Tarjeta de Pedido (Cocina) */
+        .order-card {
+            background-color: var(--color-blanco);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px var(--color-sombra);
+            padding: 20px;
+            border-top: 5px solid var(--color-secundario);
+        }
+        
+        .order-card.status-Pendiente { border-top-color: var(--color-secundario); }
+        .order-card.status-En-Cocina { border-top-color: var(--color-azul); }
+        .order-card.status-Listo { border-top-color: var(--color-verde); }
+        
+        .order-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+        .order-card .folio {
+            font-weight: bold;
+            color: var(--color-primario);
+            font-size: 1.1rem;
+        }
+        .order-card .status {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .order-card .items-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+        .order-card .items-list li {
+            border-bottom: 1px dashed #ccc;
+            padding: 5px 0;
+        }
+        .order-card .total {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: right;
+            color: var(--color-primario);
+            margin-top: 15px;
+        }
+        .order-card .timestamp {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 15px;
+        }
+        .order-card .status-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .status-btn {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: var(--color-blanco);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .status-btn.to-kitchen { background-color: var(--color-azul); }
+        .status-btn.to-ready { background-color: var(--color-verde); }
+
+
+        /* Tarjeta de Hamburguesa (Menú) */
         .burger-card {
             background-color: var(--color-blanco);
             border-radius: 10px;
@@ -85,92 +189,40 @@
             overflow: hidden;
             transition: transform 0.2s ease;
         }
-
-        .burger-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .burger-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .burger-card-content {
-            padding: 20px;
-        }
-
-        .burger-card h2 {
-            margin-top: 0;
-            color: var(--color-primario);
-            font-size: 1.5rem;
-        }
-
-        .burger-card .price {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--color-secundario);
-            margin-bottom: 15px;
-        }
-
-        .burger-card ul {
-            list-style: none;
-            padding-left: 0;
-            margin: 0;
-            font-size: 0.95rem; /* Un poco más grande para el emoji */
-        }
-
-        .burger-card li {
-            margin-bottom: 6px; /* <-- CAMBIO */
-        }
-        
-        /* Quitamos el emoji genérico de hamburguesa */
-        /* .burger-card li::before { ... } <-- ESTILO ELIMINADO */
+        .burger-card:hover { transform: translateY(-5px); }
+        .burger-card img { width: 100%; height: 200px; object-fit: cover; }
+        .burger-card-content { padding: 20px; }
+        .burger-card h2 { margin-top: 0; color: var(--color-primario); font-size: 1.5rem; }
+        .burger-card .price { font-size: 1.3rem; font-weight: bold; color: var(--color-secundario); margin-bottom: 15px; }
+        .burger-card ul { list-style: none; padding-left: 0; margin: 0; font-size: 0.95rem; }
+        .burger-card li { margin-bottom: 6px; }
 
 
         /* --- Panel Lateral de Pedido --- */
         #side-panel {
-            position: fixed;
-            top: 0;
-            left: -450px; /* Oculto por defecto (un poco más ancho) */
-            width: 450px; /* Ancho del panel */
-            height: 100vh;
+            position: fixed; top: 0; left: -450px;
+            width: 450px; height: 100vh;
             background-color: var(--color-blanco);
             box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
             z-index: 200;
             transition: left 0.3s ease-in-out;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
         }
-
-        #side-panel.open {
-            left: 0;
-        }
-
+        #side-panel.open { left: 0; }
         .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             padding: 15px 20px;
             background-color: var(--color-primario);
             color: var(--color-blanco);
         }
-
         .panel-header h2 { margin: 0; font-size: 1.5rem; }
-
         #close-panel-btn {
             background: none; border: none;
             color: var(--color-blanco);
             font-size: 2rem; font-weight: bold;
             cursor: pointer;
         }
-
-        .panel-content {
-            padding: 20px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
+        .panel-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
         #order-menu-items .item-btn {
             display: block; width: 100%;
             padding: 15px; margin-bottom: 10px;
@@ -181,94 +233,79 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-
         #order-menu-items .item-btn:hover { background-color: #D9A404; }
         
-        /* --- Sección de Personalización --- */
         #customization-section {
             margin-top: 20px;
             border-top: 2px solid var(--color-fondo);
             padding-top: 20px;
         }
-
         #customization-section h3 { margin-top: 0; }
-
         #ingredients-list label {
             display: block; margin-bottom: 10px;
             font-size: 1.1rem; cursor: pointer;
             padding: 8px; border-radius: 5px;
         }
-        
         #ingredients-list label:hover { background-color: var(--color-fondo); }
-
-        #ingredients-list input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-        
-        #add-item-to-cart-btn { /* <-- NUEVO BOTÓN */
-            width: 100%;
-            padding: 12px;
+        #ingredients-list input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
+        #add-item-to-cart-btn {
+            width: 100%; padding: 12px;
             margin-top: 15px;
             background-color: var(--color-primario);
             color: var(--color-blanco);
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            border: none; border-radius: 5px;
+            font-size: 1.1rem; font-weight: bold;
             cursor: pointer;
         }
         
-        /* --- Resumen y Total --- */
+        /* Footer del Panel (Carrito) */
         .panel-footer {
             padding: 20px;
             border-top: 2px solid var(--color-fondo);
             background-color: var(--color-blanco);
         }
-        
         #order-summary h3 { margin-top: 0; }
-
-        /* NUEVA SECCIÓN PARA EL CARRITO */
         #order-summary-list {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--color-fondo);
+            max-height: 150px; overflow-y: auto;
+            margin-bottom: 15px; border-bottom: 1px solid var(--color-fondo);
         }
         .cart-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 5px;
             font-size: 0.95rem;
         }
         .cart-item .name { font-weight: bold; }
         .cart-item .price { color: var(--color-texto); }
+        
+        .delete-item-btn { /* <-- NUEVO BOTÓN ELIMINAR */
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            line-height: 20px;
+            text-align: center;
+            margin-left: 10px;
+        }
 
         #total-display {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.5rem; font-weight: bold;
             color: var(--color-primario);
-            text-align: right;
-            margin-bottom: 15px;
+            text-align: right; margin-bottom: 15px;
         }
-        
-        #finalize-order-btn { /* <-- ESTILO DEL BOTÓN CAMBIADO */
-            width: 100%;
-            padding: 15px;
+        #finalize-order-btn {
+            width: 100%; padding: 15px;
             background-color: var(--color-verde);
             color: var(--color-blanco);
-            border: none;
-            border-radius: 5px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            border: none; border-radius: 5px;
+            font-size: 1.2rem; font-weight: bold;
             cursor: pointer;
         }
-        
-        #finalize-order-btn:hover { background-color: #218838; }
-        #finalize-order-btn:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
-        }
+        #finalize-order-btn:disabled { background-color: #aaa; cursor: not-allowed; }
         
         /* --- Overlay (Fondo oscuro) --- */
         #overlay {
@@ -278,28 +315,20 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 198;
         }
-        
         #overlay.show { display: block; }
         
-        /* --- NUEVO MODAL DE ÉXITO --- */
-        #success-modal {
+        /* --- Estilo Base para Modales --- */
+        .modal {
             display: none; /* Oculto por defecto */
-            position: fixed;
-            z-index: 300;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; z-index: 250;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6); /* Overlay más oscuro */
+            background-color: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
         }
-
-        #success-modal.show {
-            display: flex; /* Se muestra con flex */
-        }
-
+        .modal.show { display: flex; }
         .modal-content {
             background-color: var(--color-blanco);
             margin: auto;
@@ -308,136 +337,173 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
             max-width: 400px;
+            width: 90%;
         }
-        
-        .modal-content .icon {
-            font-size: 4rem;
-            color: var(--color-verde);
-        }
-
-        .modal-content h2 {
-            margin-top: 15px;
-            color: var(--color-texto);
-        }
-        
-        #close-modal-btn {
-            margin-top: 20px;
-            background-color: var(--color-primario);
-            color: var(--color-blanco);
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
+        .modal-content h2 { margin-top: 15px; color: var(--color-texto); }
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #aaa;
             cursor: pointer;
         }
+        
+        /* Modal de Éxito */
+        #success-modal .icon { font-size: 4rem; color: var(--color-verde); }
+        #close-modal-btn {
+            margin-top: 20px; background-color: var(--color-primario);
+            color: var(--color-blanco); padding: 10px 20px;
+            border: none; border-radius: 5px;
+            font-size: 1rem; cursor: pointer;
+        }
+        
+        /* --- NUEVO: Modal de Login --- */
+        #login-modal .modal-content {
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Importante */
+        }
+        #login-submit-btn {
+            width: 100%; padding: 12px;
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+            border: none; border-radius: 5px;
+            font-size: 1.1rem; cursor: pointer;
+        }
+        #login-error-msg {
+            color: var(--color-primario);
+            text-align: center;
+            display: none;
+            margin-top: 10px;
+        }
+        
+        /* --- NUEVO: Modal de Panel Admin --- */
+        #admin-panel-modal .admin-menu-btn {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #admin-panel-modal .admin-menu-btn:hover {
+            transform: scale(1.03);
+        }
+        #admin-panel-create-order { background-color: var(--color-secundario); color: var(--color-texto); }
+        #admin-panel-kitchen { background-color: var(--color-azul); color: var(--color-blanco); }
+        #admin-panel-admin { background-color: #6c757d; color: var(--color-blanco); }
 
     </style>
 </head>
 <body>
 
     <header class="main-header">
+        <div class="header-side left">
+            <button id="auth-btn">Iniciar Sesión</button>
+        </div>
         <div class="logo-container">
             <img src="logo.png" alt="Logo del Negocio">
         </div>
-        <button id="header-order-btn">Crear Nuevo Pedido</button>
+        <div class="header-side right">
+            </div>
     </header>
 
     <div id="overlay"></div>
 
     <aside id="side-panel">
-        
         <div class="panel-header">
             <h2>Nuevo Pedido</h2>
             <button id="close-panel-btn">&times;</button>
         </div>
-        
         <div class="panel-content">
-            
             <div id="order-menu-items">
-                <h3>Selecciona un Producto</h3>
                 </div>
-            
             <div id="customization-section" style="display: none;">
                 <h3 id="custom-burger-name">Personalizar</h3>
                 <div id="ingredients-list">
                     </div>
                 <button id="add-item-to-cart-btn">Agregar al Carrito</button>
             </div>
-
         </div>
-        
         <div class="panel-footer">
             <div id="order-summary">
                 <h3>Resumen del Pedido</h3>
                 <div id="order-summary-list">
                     </div>
             </div>
-            
-            <div id="total-display">
-                Total: $0.00
-            </div>
-            
+            <div id="total-display">Total: $0.00</div>
             <button id="finalize-order-btn" disabled>Finalizar Pedido</button>
         </div>
-
     </aside>
 
-    <main id="menu-gallery">
-
-        <div class="burger-card">
-            <img src="sencilla.png" alt="Hamburguesa Sencilla">
-            <div class="burger-card-content">
-                <h2>Sencilla</h2>
-                <div class="price">$70.00</div>
-                <ul>
-                    <li>🧀 Queso amarillo</li>
-                    <li>🍖 Jamón</li>
-                    <li>🥑 Aguacate</li>
-                    <li>🧅 Cebolla</li>
-                    <li>🍅 Tomate</li>
-                    <li>🥬 Lechuga</li>
-                </ul>
+    <main>
+        
+        <section id="menu-gallery">
+            <div class="burger-card">
+                <img src="sencilla.png" alt="Hamburguesa Sencilla">
+                <div class="burger-card-content">
+                    <h2>Sencilla</h2>
+                    <div class="price">$70.00</div>
+                    <ul>
+                        <li>🧀 Queso amarillo</li> <li>🍖 Jamón</li> <li>🥑 Aguacate</li>
+                        <li>🧅 Cebolla</li> <li>🍅 Tomate</li> <li>🥬 Lechuga</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-
-        <div class="burger-card">
-            <img src="hawaiana.png" alt="Hamburguesa Hawaiana">
-            <div class="burger-card-content">
-                <h2>Hawaiana</h2>
-                <div class="price">$85.00</div>
-                <ul>
-                    <li>🧀 Queso amarillo</li>
-                    <li>🍖 Jamón</li>
-                    <li>🍍 Piña</li>
-                    <li>🥑 Aguacate</li>
-                    <li>🍅 Tomate</li>
-                    <li>🧅 Cebolla</li>
-                    <li>🥬 Lechuga</li>
-                </ul>
+            <div class="burger-card">
+                <img src="hawaiana.png" alt="Hamburguesa Hawaiana">
+                <div class="burger-card-content">
+                    <h2>Hawaiana</h2>
+                    <div class="price">$85.00</div>
+                    <ul>
+                        <li>🧀 Queso amarillo</li> <li>🍖 Jamón</li> <li>🍍 Piña</li>
+                        <li>🥑 Aguacate</li> <li>🍅 Tomate</li> <li>🧅 Cebolla</li> <li>🥬 Lechuga</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-
-        <div class="burger-card">
-            <img src="especial.png" alt="Hamburguesa Especial">
-            <div class="burger-card-content">
-                <h2>Especial</h2>
-                <div class="price">$110.00</div>
-                <ul>
-                    <li>🥩 Doble Carne</li>
-                    <li>🧀 Queso Manchego</li>
-                    <li>🥓 Tocino</li>
-                    <li>🍖 Jamón</li>
-                    <li>🥑 Aguacate</li>
-                    <li>🍅 Tomate</li>
-                    <li>🧅 Cebolla</li>
-                    <li>🥬 Lechuga</li>
-                </ul>
+            <div class="burger-card">
+                <img src="especial.png" alt="Hamburguesa Especial">
+                <div class="burger-card-content">
+                    <h2>Especial</h2>
+                    <div class="price">$110.00</div>
+                    <ul>
+                        <li>🥩 Doble Carne</li> <li>🧀 Queso Manchego</li> <li>🥓 Tocino</li>
+                        <li>🍖 Jamón</li> <li>🥑 Aguacate</li> <li>🍅 Tomate</li>
+                        <li>🧅 Cebolla</li> <li>🥬 Lechuga</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-
+        </section>
+        
+        <section id="kitchen-view">
+            <h1>Pedidos en Tiempo Real</h1>
+            <div id="kitchen-orders-list">
+                </div>
+        </section>
+    
     </main>
     
-    <div id="success-modal">
+    <div id="success-modal" class="modal">
         <div class="modal-content">
             <div class="icon">✅</div>
             <h2>¡Pedido Enviado!</h2>
@@ -445,10 +511,38 @@
             <button id="close-modal-btn">Aceptar</button>
         </div>
     </div>
+    
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" id="login-close-btn">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Usuario">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Contraseña">
+            </div>
+            <p id="login-error-msg">Usuario o contraseña incorrectos</p>
+            <button id="login-submit-btn">Entrar</button>
+        </div>
+    </div>
+    
+    <div id="admin-panel-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" id="admin-panel-close-btn">&times;</span>
+            <h2>Panel de Administrador</h2>
+            <button id="admin-panel-create-order" class="admin-menu-btn">Crear Pedido</button>
+            <button id="admin-panel-kitchen" class="admin-menu-btn">Ver Cocina</button>
+            <button id="admin-panel-admin" class="admin-menu-btn">Administración</button>
+            <button id="admin-panel-menu" class="admin-menu-btn" style="background-color: #aaa;">Ver Menú</button>
+        </div>
+    </div>
 
 
     <script>
-        // --- Configuración de Firebase (PEGADA DE TU CÓDIGO) ---
+        // --- Configuración de Firebase (Tuya) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDip9cNWnSXTKYzBy95zDom8SVfbjdC-68",
             authDomain: "chepinas-burguer.firebaseapp.com",
@@ -458,76 +552,149 @@
             appId: "1:233011732997:web:8b9bdbd47c83b4ef14726c"
         };
 
-        // --- Inicializar Firebase y Servicios ---
-        // Accedemos a las funciones desde el objeto global 'firebase'
+        // --- Inicializar Firebase (Sintaxis v8/COMPAT) ---
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore.getFirestore(app);
-        
-        // Extraemos las funciones de Firestore que usaremos
-        const { collection, addDoc, serverTimestamp } = firebase.firestore;
+        const db = firebase.firestore(); // <-- SINTAXIS CORREGIDA
         
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- Base de Datos Temporal de Hamburguesas ---
             const menuItems = [
-                {
-                    id: 'sencilla',
-                    name: 'Sencilla',
-                    price: 70,
-                    ingredients: ['Queso amarillo', 'Jamón', 'Aguacate', 'Cebolla', 'Tomate', 'Lechuga']
-                },
-                {
-                    id: 'hawaiana',
-                    name: 'Hawaiana',
-                    price: 85,
-                    ingredients: ['Queso amarillo', 'Jamón', 'Piña', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga']
-                },
-                {
-                    id: 'especial',
-                    name: 'Especial',
-                    price: 110,
-                    ingredients: ['Doble Carne', 'Queso Manchego', 'Tocino', 'Jamón', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga']
-                }
+                { id: 'sencilla', name: 'Sencilla', price: 70, ingredients: ['Queso amarillo', 'Jamón', 'Aguacate', 'Cebolla', 'Tomate', 'Lechuga'] },
+                { id: 'hawaiana', name: 'Hawaiana', price: 85, ingredients: ['Queso amarillo', 'Jamón', 'Piña', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga'] },
+                { id: 'especial', name: 'Especial', price: 110, ingredients: ['Doble Carne', 'Queso Manchego', 'Tocino', 'Jamón', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga'] }
             ];
             
-            // --- Estado actual del pedido ---
-            let currentOrderItem = null; // El item que se está personalizando
-            let fullOrder = []; // El carrito completo (array de items)
+            // --- Estado Global ---
+            let currentOrderItem = null;
+            let fullOrder = []; // El carrito
+            let isLoggedIn = false;
+            let orderListener = null; // Para guardar el listener de onSnapshot
 
-            // --- Elementos del DOM ---
-            const openPanelBtn = document.getElementById('header-order-btn'); // <-- CAMBIO DE SELECTOR
-            const closePanelBtn = document.getElementById('close-panel-btn');
-            const sidePanel = document.getElementById('side-panel');
+            // --- Elementos del DOM (Generales) ---
             const overlay = document.getElementById('overlay');
+            const authBtn = document.getElementById('auth-btn');
+            const menuGallery = document.getElementById('menu-gallery');
+            const kitchenView = document.getElementById('kitchen-view');
+            const kitchenOrdersList = document.getElementById('kitchen-orders-list');
             
+            // --- Elementos del DOM (Panel Pedido) ---
+            const sidePanel = document.getElementById('side-panel');
+            const closePanelBtn = document.getElementById('close-panel-btn');
             const orderMenuContainer = document.getElementById('order-menu-items');
             const customizationSection = document.getElementById('customization-section');
             const customBurgerName = document.getElementById('custom-burger-name');
             const ingredientsList = document.getElementById('ingredients-list');
-            const addItemToCartBtn = document.getElementById('add-item-to-cart-btn'); // <-- NUEVO BOTÓN
-            
-            const cartSummaryList = document.getElementById('order-summary-list'); // <-- NUEVO (lista carrito)
+            const addItemToCartBtn = document.getElementById('add-item-to-cart-btn');
+            const cartSummaryList = document.getElementById('order-summary-list');
             const totalDisplay = document.getElementById('total-display');
-            const finalizeOrderBtn = document.getElementById('finalize-order-btn'); // <-- CAMBIO DE ID
+            const finalizeOrderBtn = document.getElementById('finalize-order-btn');
             
-            const successModal = document.getElementById('success-modal'); // <-- NUEVO (modal)
-            const closeModalBtn = document.getElementById('close-modal-btn'); // <-- NUEVO (modal)
+            // --- Elementos del DOM (Modales) ---
+            const successModal = document.getElementById('success-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const loginModal = document.getElementById('login-modal');
+            const loginCloseBtn = document.getElementById('login-close-btn');
+            const loginSubmitBtn = document.getElementById('login-submit-btn');
+            const loginErrorMsg = document.getElementById('login-error-msg');
+            const adminPanelModal = document.getElementById('admin-panel-modal');
+            const adminPanelCloseBtn = document.getElementById('admin-panel-close-btn');
+            const adminPanelCreateOrderBtn = document.getElementById('admin-panel-create-order');
+            const adminPanelKitchenBtn = document.getElementById('admin-panel-kitchen');
+            const adminPanelAdminBtn = document.getElementById('admin-panel-admin');
+            const adminPanelMenuBtn = document.getElementById('admin-panel-menu');
 
-            // --- Funciones para abrir/cerrar panel ---
+
+            // --- Funciones de Modales y Paneles ---
             function openPanel() {
                 sidePanel.classList.add('open');
                 overlay.classList.add('show');
             }
-
             function closePanel() {
                 sidePanel.classList.remove('open');
                 overlay.classList.remove('show');
-                // Reseteamos el panel de personalización, pero NO el carrito
-                resetCustomizationSection(); 
+                resetCustomizationSection();
+            }
+            function openModal(modal) {
+                modal.classList.add('show');
+                overlay.classList.add('show');
+            }
+            function closeModal(modal) {
+                modal.classList.remove('show');
+                if (!sidePanel.classList.contains('open') && !document.querySelector('.modal.show')) {
+                    overlay.classList.remove('show');
+                }
+            }
+            
+            // --- Lógica de Vistas (Menú vs Cocina) ---
+            function showView(viewName) {
+                menuGallery.style.display = 'none';
+                kitchenView.style.display = 'none';
+                
+                if (viewName === 'menu') {
+                    menuGallery.style.display = 'grid';
+                } else if (viewName === 'kitchen') {
+                    kitchenView.style.display = 'block';
+                    listenToOrders(); // Empieza a escuchar pedidos al ver la cocina
+                }
             }
 
-            // --- Llenar el menú de selección en el panel ---
+            // --- Lógica de Autenticación ---
+            authBtn.addEventListener('click', () => {
+                if (isLoggedIn) {
+                    openModal(adminPanelModal);
+                } else {
+                    openModal(loginModal);
+                }
+            });
+            
+            loginCloseBtn.addEventListener('click', () => closeModal(loginModal));
+            
+            loginSubmitBtn.addEventListener('click', () => {
+                const user = document.getElementById('username').value;
+                const pass = document.getElementById('password').value;
+                
+                // --- INICIO ADVERTENCIA DE SEGURIDAD ---
+                // Esto es solo para desarrollo. Nunca uses contraseñas así en un
+                // proyecto real. Usa Firebase Authentication.
+                console.warn("ADVERTENCIA: Usando login hardcodeado. Solo para desarrollo.");
+                // --- FIN ADVERTENCIA DE SEGURIDAD ---
+                
+                if (user === 'CHEPINAS' && pass === 'BURGUERS') {
+                    isLoggedIn = true;
+                    authBtn.textContent = 'PANEL';
+                    authBtn.classList.add('panel-btn');
+                    closeModal(loginModal);
+                    loginErrorMsg.style.display = 'none';
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                } else {
+                    loginErrorMsg.style.display = 'block';
+                }
+            });
+            
+            // --- Lógica del Panel de Admin ---
+            adminPanelCloseBtn.addEventListener('click', () => closeModal(adminPanelModal));
+            adminPanelCreateOrderBtn.addEventListener('click', () => {
+                closeModal(adminPanelModal);
+                openPanel();
+            });
+            adminPanelKitchenBtn.addEventListener('click', () => {
+                showView('kitchen');
+                closeModal(adminPanelModal);
+            });
+            adminPanelMenuBtn.addEventListener('click', () => {
+                showView('menu');
+                closeModal(adminPanelModal);
+            });
+            adminPanelAdminBtn.addEventListener('click', () => {
+                alert('La sección "Administración" se construirá próximamente.');
+            });
+            
+
+            // --- Lógica del Panel de Pedido ---
+            closePanelBtn.addEventListener('click', closePanel);
+            
             function populateOrderMenu() {
                 orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>';
                 menuItems.forEach(item => {
@@ -540,22 +707,15 @@
                 });
             }
 
-            // --- Mostrar la sección de personalización ---
             function showCustomization(item) {
-                currentOrderItem = {
-                    ...item,
-                    customIngredients: [...item.ingredients]
-                };
-                
+                currentOrderItem = { ...item, customIngredients: [...item.ingredients] };
                 customBurgerName.textContent = `Personalizar: ${item.name}`;
                 ingredientsList.innerHTML = '';
                 
                 item.ingredients.forEach(ingredient => {
                     const label = document.createElement('label');
                     const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = ingredient;
-                    checkbox.checked = true;
+                    checkbox.type = 'checkbox'; checkbox.value = ingredient; checkbox.checked = true;
                     
                     checkbox.addEventListener('change', (e) => {
                         if (e.target.checked) {
@@ -564,39 +724,40 @@
                             currentOrderItem.customIngredients = currentOrderItem.customIngredients.filter(ing => ing !== e.target.value);
                         }
                     });
-                    
                     label.appendChild(checkbox);
                     label.appendChild(document.createTextNode(` ${ingredient}`));
                     ingredientsList.appendChild(label);
                 });
-                
                 customizationSection.style.display = 'block';
             }
             
-            // --- Resetea solo la parte de personalización ---
             function resetCustomizationSection() {
                 customizationSection.style.display = 'none';
                 ingredientsList.innerHTML = '';
                 currentOrderItem = null;
             }
             
-            // --- NUEVA FUNCIÓN: Agregar item al carrito ---
-            function addItemToCart() {
+            // --- Lógica del Carrito ---
+            addItemToCartBtn.addEventListener('click', () => {
                 if (!currentOrderItem) return;
-                
-                fullOrder.push(currentOrderItem); // Agrega el item personalizado al array del carrito
-                
-                console.log('Carrito actual:', fullOrder);
-                
-                renderCart(); // Actualiza la lista del carrito en el UI
-                updateTotal(); // Recalcula el total
-                resetCustomizationSection(); // Oculta la personalización
-            }
+                fullOrder.push(currentOrderItem);
+                renderCart();
+                updateTotal();
+                resetCustomizationSection();
+            });
             
-            // --- NUEVA FUNCIÓN: Renderizar el carrito ---
+            // NUEVO: Listener para eliminar del carrito (Event Delegation)
+            cartSummaryList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-item-btn')) {
+                    const index = parseInt(e.target.dataset.index, 10);
+                    fullOrder.splice(index, 1); // Elimina el item del array
+                    renderCart(); // Re-dibuja el carrito
+                    updateTotal(); // Re-calcula el total
+                }
+            });
+
             function renderCart() {
-                cartSummaryList.innerHTML = ''; // Limpia la lista
-                
+                cartSummaryList.innerHTML = '';
                 if (fullOrder.length === 0) {
                     cartSummaryList.innerHTML = '<p style="text-align: center; color: #888;">El carrito está vacío</p>';
                 }
@@ -605,22 +766,22 @@
                     const itemEl = document.createElement('div');
                     itemEl.className = 'cart-item';
                     itemEl.innerHTML = `
-                        <span class="name">${item.name}</span>
-                        <span class="price">$${item.price.toFixed(2)}</span>
+                        <div>
+                            <span class="name">${item.name}</span>
+                            </div>
+                        <div>
+                            <span class="price">$${item.price.toFixed(2)}</span>
+                            <button class="delete-item-btn" data-index="${index}">&times;</button>
+                        </div>
                     `;
-                    // Podríamos agregar un botón de "eliminar" aquí
                     cartSummaryList.appendChild(itemEl);
                 });
             }
 
-            // --- NUEVA FUNCIÓN: Actualizar el Total del Carrito ---
             function updateTotal() {
-                // Suma el precio de cada item en el array 'fullOrder'
                 const total = fullOrder.reduce((sum, item) => sum + item.price, 0);
-                
                 totalDisplay.textContent = `Total: $${total.toFixed(2)}`;
                 
-                // Activa o desactiva el botón de finalizar
                 if (fullOrder.length > 0) {
                     finalizeOrderBtn.disabled = false;
                     finalizeOrderBtn.textContent = `Finalizar Pedido ($${total.toFixed(2)})`;
@@ -630,7 +791,6 @@
                 }
             }
 
-            // --- NUEVA FUNCIÓN: Resetear todo el pedido ---
             function resetOrder() {
                 fullOrder = [];
                 currentOrderItem = null;
@@ -639,62 +799,129 @@
                 resetCustomizationSection();
             }
 
-            // --- FUNCIÓN MODIFICADA: Finalizar y Enviar Pedido a Firebase ---
-            async function finalizeOrder() {
-                if (fullOrder.length === 0) return; // No hacer nada si el carrito está vacío
+            // --- Lógica de Firebase (CORREGIDA) ---
+            finalizeOrderBtn.addEventListener('click', async () => {
+                if (fullOrder.length === 0) return;
 
                 finalizeOrderBtn.disabled = true;
                 finalizeOrderBtn.textContent = 'Enviando...';
                 
-                // 1. Prepara el objeto para Firebase
                 const orderData = {
-                    items: fullOrder, // Array de hamburguesas
+                    items: fullOrder,
                     total: fullOrder.reduce((sum, item) => sum + item.price, 0),
-                    createdAt: serverTimestamp(), // Marca de tiempo del servidor
-                    status: 'Pendiente' // (Sugerencia)
+                    status: 'Pendiente', // Estado inicial
+                    folio: `FOLIO-${Date.now().toString().slice(-6)}`, // Folio simple
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() // <-- SINTAXIS CORREGIDA
                 };
                 
                 try {
-                    // 2. Envía el documento a la colección "pedidos"
-                    const docRef = await addDoc(collection(db, "pedidos"), orderData);
-                    
+                    // --- SINTAXIS CORREGIDA (v8/compat) ---
+                    const docRef = await db.collection("pedidos").add(orderData);
                     console.log("Pedido guardado con ID: ", docRef.id);
-                    
-                    // 3. Muestra el modal de éxito (reemplaza alert)
-                    openSuccessModal();
+                    openModal(successModal);
                     
                 } catch (e) {
                     console.error("Error al agregar documento: ", e);
-                    alert("Error al enviar el pedido. Intenta de nuevo."); // Fallback
-                    finalizeOrderBtn.disabled = false; // Reactiva el botón si falla
-                    updateTotal(); // Restaura el texto del botón
+                    alert("Error al enviar el pedido. Intenta de nuevo.");
+                } finally {
+                    closePanel();
+                    resetOrder();
+                }
+            });
+            
+            closeModalBtn.addEventListener('click', () => closeModal(successModal));
+            
+            // --- NUEVA: Lógica de Cocina (Leer Pedidos) ---
+            function listenToOrders() {
+                // Si ya hay un listener, lo detenemos para no duplicar
+                if (orderListener) {
+                    orderListener();
+                }
+
+                // Escuchamos la colección "pedidos", ordenados por fecha, en tiempo real
+                orderListener = db.collection("pedidos")
+                    .orderBy("createdAt", "desc")
+                    .limit(20) // Traemos los últimos 20
+                    .onSnapshot((snapshot) => {
+                        kitchenOrdersList.innerHTML = ''; // Limpiamos la vista
+                        if (snapshot.empty) {
+                            kitchenOrdersList.innerHTML = '<p>No hay pedidos pendientes.</p>';
+                            return;
+                        }
+                        
+                        snapshot.docs.forEach(doc => {
+                            const order = doc.data();
+                            const orderId = doc.id;
+                            
+                            // Formatear la fecha
+                            let date = 'Cargando...';
+                            if (order.createdAt && order.createdAt.toDate) {
+                                date = order.createdAt.toDate().toLocaleString('es-MX');
+                            }
+                            
+                            // Renderizar la tarjeta de pedido
+                            const card = document.createElement('div');
+                            card.className = `order-card status-${order.status.replace(' ', '-')}`; // ej. status-En-Cocina
+                            
+                            // Lista de items
+                            const itemsHtml = order.items.map(item => 
+                                `<li>${item.name} - $${item.price.toFixed(2)}</li>`
+                            ).join('');
+                            
+                            card.innerHTML = `
+                                <h3><span class="folio">${order.folio}</span></h3>
+                                <span class="timestamp">${date}</span>
+                                <span class="status">Estado: ${order.status}</span>
+                                <ul class="items-list">${itemsHtml}</ul>
+                                <div class="total">$${order.total.toFixed(2)}</div>
+                                <div class="status-buttons">
+                                    ${order.status === 'Pendiente' ? 
+                                        `<button class="status-btn to-kitchen" data-id="${orderId}" data-status="En Cocina">Mover a Cocina</button>` : ''}
+                                    ${order.status === 'En Cocina' ? 
+                                        `<button class="status-btn to-ready" data-id="${orderId}" data-status="Listo">Marcar como Listo</button>` : ''}
+                                </div>
+                            `;
+                            kitchenOrdersList.appendChild(card);
+                        });
+                    }, (error) => {
+                        console.error("Error escuchando pedidos: ", error);
+                        kitchenOrdersList.innerHTML = '<p>Error al cargar pedidos.</p>';
+                    });
+            }
+            
+            // NUEVO: Listener para botones de estado (Event Delegation)
+            kitchenOrdersList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('status-btn')) {
+                    const id = e.target.dataset.id;
+                    const newStatus = e.target.dataset.status;
+                    updateOrderStatus(id, newStatus);
+                }
+            });
+            
+            // NUEVO: Actualizar estado en Firebase
+            async function updateOrderStatus(id, status) {
+                try {
+                    // --- SINTAXIS CORREGIDA (v8/compat) ---
+                    await db.collection("pedidos").doc(id).update({
+                        status: status
+                    });
+                    console.log(`Pedido ${id} actualizado a ${status}`);
+                } catch (e) {
+                    console.error("Error al actualizar estado: ", e);
                 }
             }
-            
-            // --- NUEVAS FUNCIONES: Control del Modal ---
-            function openSuccessModal() {
-                successModal.classList.add('show');
-                closePanel(); // Cierra el panel de pedido
-                resetOrder(); // Limpia el carrito
-            }
-
-            function closeSuccessModal() {
-                successModal.classList.remove('show');
-            }
-
-            // --- Asignación de Eventos ---
-            openPanelBtn.addEventListener('click', openPanel);
-            closePanelBtn.addEventListener('click', closePanel);
-            overlay.addEventListener('click', closePanel);
-            
-            addItemToCartBtn.addEventListener('click', addItemToCart); // Botón de personalizar
-            finalizeOrderBtn.addEventListener('click', finalizeOrder); // Botón de pie de panel
-            
-            closeModalBtn.addEventListener('click', closeSuccessModal); // Botón de cerrar modal
 
             // --- Inicialización ---
             populateOrderMenu();
-            renderCart(); // Para mostrar "El carrito está vacío" al inicio
+            renderCart();
+            
+            // Clicks en Overlay (para cerrar modales/panel)
+            overlay.addEventListener('click', () => {
+                closePanel();
+                closeModal(loginModal);
+                closeModal(successModal);
+                closeModal(adminPanelModal);
+            });
         });
     </script>
 
