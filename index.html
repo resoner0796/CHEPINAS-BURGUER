@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburguesas - Centro de Pedidos</title>
+    
+    <style>
+        /* --- Variables de Color (Tema Hamburguesa) --- */
+        :root {
+            --color-primario: #D92B2B; /* Rojo Ketchup */
+            --color-secundario: #F2B705; /* Amarillo Mostaza/Queso */
+            --color-fondo: #F2F2F2;      /* Fondo Claro */
+            --color-texto: #333333;      /* Texto Oscuro */
+            --color-blanco: #FFFFFF;
+            --color-sombra: rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Estilos Generales --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+        }
+
+        /* --- Header (Logo) --- */
+        header.main-header {
+            width: 100%;
+            background-color: var(--color-blanco);
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px var(--color-sombra);
+            position: sticky; /* Se mantiene arriba */
+            top: 0;
+            z-index: 100;
+        }
+
+        header.main-header img {
+            max-height: 80px; /* Ajusta la altura de tu logo */
+            width: auto;
+        }
+
+        /* --- Galería del Menú Principal --- */
+        #menu-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive */
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .burger-card {
+            background-color: var(--color-blanco);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px var(--color-sombra);
+            overflow: hidden; /* Para que la imagen respete los bordes */
+            transition: transform 0.2s ease;
+        }
+
+        .burger-card:hover {
+            transform: translateY(-5px); /* Pequeño efecto al pasar el mouse */
+        }
+
+        .burger-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; /* Asegura que la imagen cubra el espacio */
+        }
+
+        .burger-card-content {
+            padding: 20px;
+        }
+
+        .burger-card h2 {
+            margin-top: 0;
+            color: var(--color-primario);
+            font-size: 1.5rem;
+        }
+
+        .burger-card .price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--color-secundario);
+            margin-bottom: 15px;
+        }
+
+        .burger-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .burger-card li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 5px;
+        }
+
+        .burger-card li::before {
+            content: '🍔'; /* Emoji de hamburguesa */
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        /* --- Botón para Abrir Panel de Pedido --- */
+        #open-panel-btn {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg); /* Gira el botón verticalmente */
+            transform-origin: left top;
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 199;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            box-shadow: 2px 0px 10px rgba(0,0,0,0.2);
+            writing-mode: vertical-rl; /* Para que el texto sea vertical */
+            text-orientation: mixed;
+            transition: background-color 0.2s;
+        }
+        
+        #open-panel-btn:hover {
+            background-color: #A62020; /* Rojo más oscuro */
+        }
+
+        /* --- Panel Lateral de Pedido --- */
+        #side-panel {
+            position: fixed;
+            top: 0;
+            left: -400px; /* Oculto por defecto */
+            width: 400px; /* Ancho del panel */
+            height: 100vh;
+            background-color: var(--color-blanco);
+            box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
+            z-index: 200;
+            transition: left 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #side-panel.open {
+            left: 0; /* Muestra el panel */
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--color-primario);
+            color: var(--color-blanco);
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        #close-panel-btn {
+            background: none;
+            border: none;
+            color: var(--color-blanco);
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .panel-content {
+            padding: 20px;
+            overflow-y: auto; /* Scroll si el contenido es mucho */
+            flex-grow: 1;
+        }
+
+        #order-menu-items .item-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: var(--color-secundario);
+            color: var(--color-texto);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #order-menu-items .item-btn:hover {
+            background-color: #D9A404; /* Amarillo más oscuro */
+        }
+        
+        /* --- Sección de Personalización --- */
+        #customization-section {
+            margin-top: 20px;
+            border-top: 2px solid var(--color-fondo);
+            padding-top: 20px;
+        }
+
+        #customization-section h3 {
+            margin-top: 0;
+        }
+
+        #ingredients-list label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        
+        #ingredients-list label:hover {
+            background-color: var(--color-fondo);
+        }
+
+        #ingredients-list input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2); /* Checkbox un poco más grande */
+        }
+        
+        /* --- Resumen y Total --- */
+        .panel-footer {
+            padding: 20px;
+            border-top: 2px solid var(--color-fondo);
+            background-color: var(--color-blanco);
+        }
+        
+        #order-summary h3 {
+            margin-top: 0;
+        }
+
+        #total-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-primario);
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        
+        #add-to-order-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745; /* Verde para 'Agregar' */
+            color: var(--color-blanco);
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        #add-to-order-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* Div para el overlay (oscurece la pantalla) */
+        #overlay {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 198;
+        }
+        
+        #overlay.show {
+            display: block; /* Se muestra con el panel */
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <img src="logo.png" alt="Logo del Negocio">
+    </header>
+
+    <button id="open-panel-btn">Crear Pedido</button>
+    
+    <div id="overlay"></div>
+
+    <aside id="side-panel">
+        
+        <div class="panel-header">
+            <h2>Nuevo Pedido</h2>
+            <button id="close-panel-btn">&times;</button>
+        </div>
+        
+        <div class="panel-content">
+            
+            <div id="order-menu-items">
+                <h3>Selecciona un Producto</h3>
+                </div>
+            
+            <div id="customization-section" style="display: none;">
+                <h3 id="custom-burger-name">Personalizar</h3>
+                <div id="ingredients-list">
+                    </div>
+            </div>
+
+        </div>
+        
+        <div class="panel-footer">
+            <div id="order-summary">
+                <h3>Resumen del Pedido</h3>
+                </div>
+            
+            <div id="total-display">
+                Total: $0.00
+            </div>
+            
+            <button id="add-to-order-btn" disabled>Selecciona un producto</button>
+        </div>
+
+    </aside>
+
+    <main id="menu-gallery">
+
+        <div class="burger-card">
+            <img src="sencilla.png" alt="Hamburguesa Sencilla">
+            <div class="burger-card-content">
+                <h2>Sencilla</h2>
+                <div class="price">$70.00</div>
+                <ul>
+                    <li>Queso amarillo</li>
+                    <li>Jamón</li>
+                    <li>Aguacate</li>
+                    <li>Cebolla</li>
+                    <li>Tomate</li>
+                    <li>Lechuga</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="burger-card">
+            <img src="hawaiana.png" alt="Hamburguesa Hawaiana">
+            <div class="burger-card-content">
+                <h2>Hawaiana</h2>
+                <div class="price">$85.00</div>
+                <ul>
+                    <li>Queso amarillo</li>
+                    <li>Jamón</li>
+                    <li>Piña</li>
+                    <li>Aguacate</li>
+                    <li>Tomate</li>
+                    <li>Cebolla</li>
+                    <li>Lechuga</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="burger-card">
+            <img src="especial.png" alt="Hamburguesa Especial">
+            <div class="burger-card-content">
+                <h2>Especial</h2>
+                <div class="price">$110.00</div>
+                <ul>
+                    <li>Doble Carne</li>
+                    <li>Queso Manchego</li>
+                    <li>Tocino</li>
+                    <li>Jamón</li>
+                    <li>Aguacate</li>
+                    <li>Tomate</li>
+                    <li>Cebolla</li>
+                    <li>Lechuga</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Base de Datos Temporal de Hamburguesas ---
+            const menuItems = [
+                {
+                    id: 'sencilla',
+                    name: 'Sencilla',
+                    price: 70,
+                    ingredients: ['Queso amarillo', 'Jamón', 'Aguacate', 'Cebolla', 'Tomate', 'Lechuga']
+                },
+                {
+                    id: 'hawaiana',
+                    name: 'Hawaiana',
+                    price: 85,
+                    ingredients: ['Queso amarillo', 'Jamón', 'Piña', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga']
+                },
+                {
+                    id: 'especial',
+                    name: 'Especial',
+                    price: 110,
+                    ingredients: ['Doble Carne', 'Queso Manchego', 'Tocino', 'Jamón', 'Aguacate', 'Tomate', 'Cebolla', 'Lechuga']
+                }
+            ];
+            
+            // --- Estado actual del pedido ---
+            let currentOrderItem = null;
+            let currentOrderTotal = 0;
+            let fullOrder = []; // Array para guardar el pedido completo
+
+            // --- Elementos del DOM ---
+            const openPanelBtn = document.getElementById('open-panel-btn');
+            const closePanelBtn = document.getElementById('close-panel-btn');
+            const sidePanel = document.getElementById('side-panel');
+            const overlay = document.getElementById('overlay');
+            const orderMenuContainer = document.getElementById('order-menu-items');
+            const customizationSection = document.getElementById('customization-section');
+            const customBurgerName = document.getElementById('custom-burger-name');
+            const ingredientsList = document.getElementById('ingredients-list');
+            const totalDisplay = document.getElementById('total-display');
+            const addToOrderBtn = document.getElementById('add-to-order-btn');
+
+            // --- Funciones para abrir/cerrar panel ---
+            function openPanel() {
+                sidePanel.classList.add('open');
+                overlay.classList.add('show');
+            }
+
+            function closePanel() {
+                sidePanel.classList.remove('open');
+                overlay.classList.remove('show');
+                resetPanel(); // Limpia el panel al cerrar
+            }
+
+            // --- Llenar el menú de selección en el panel ---
+            function populateOrderMenu() {
+                orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>'; // Limpia
+                menuItems.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'item-btn';
+                    button.textContent = `${item.name} - $${item.price.toFixed(2)}`;
+                    button.dataset.itemId = item.id; // Guarda el ID en el botón
+                    
+                    button.addEventListener('click', () => {
+                        showCustomization(item);
+                    });
+                    
+                    orderMenuContainer.appendChild(button);
+                });
+            }
+
+            // --- Mostrar la sección de personalización ---
+            function showCustomization(item) {
+                // Guarda el item seleccionado
+                currentOrderItem = {
+                    ...item, // Copia todas las propiedades
+                    customIngredients: [...item.ingredients] // Crea una copia de los ingredientes para modificar
+                };
+                
+                customBurgerName.textContent = `Personalizar: ${item.name}`;
+                ingredientsList.innerHTML = ''; // Limpia lista anterior
+                
+                // Crea un checkbox por cada ingrediente
+                item.ingredients.forEach(ingredient => {
+                    const label = document.createElement('label');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = ingredient;
+                    checkbox.checked = true; // Por defecto todos están seleccionados
+                    
+                    // Evento para quitar/agregar ingrediente de la lista custom
+                    checkbox.addEventListener('change', (e) => {
+                        if (e.target.checked) {
+                            // Si se marca, se agrega a la lista custom
+                            currentOrderItem.customIngredients.push(e.target.value);
+                        } else {
+                            // Si se desmarca, se filtra y se quita
+                            currentOrderItem.customIngredients = currentOrderItem.customIngredients.filter(ing => ing !== e.target.value);
+                        }
+                        console.log('Ingredientes actuales:', currentOrderItem.customIngredients);
+                    });
+                    
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(` ${ingredient}`));
+                    ingredientsList.appendChild(label);
+                });
+                
+                customizationSection.style.display = 'block';
+                addToOrderBtn.disabled = false;
+                addToOrderBtn.textContent = `Agregar ${item.name} al Pedido`;
+                
+                // Actualiza el total temporal (luego se sumará)
+                updateTotal(item.price); 
+            }
+            
+            // --- Actualizar el display del Total ---
+            // (Nota: Por ahora solo muestra el precio del item seleccionado, no el total acumulado)
+            function updateTotal(price) {
+                // Más adelante, 'price' será el total de `fullOrder`
+                totalDisplay.textContent = `Total: $${price.toFixed(2)}`;
+            }
+
+            // --- Resetear el panel a su estado inicial ---
+            function resetPanel() {
+                customizationSection.style.display = 'none';
+                ingredientsList.innerHTML = '';
+                currentOrderItem = null;
+                addToOrderBtn.disabled = true;
+                addToOrderBtn.textContent = 'Selecciona un producto';
+                // (Aquí faltaría resetear el total si ya tuviéramos un carrito)
+                // updateTotal(0); 
+            }
+
+            // --- Lógica para "Agregar al Pedido" ---
+            function addCurrentItemToOrder() {
+                if (!currentOrderItem) return;
+                
+                // Aquí es donde enviarías los datos a Firebase
+                // Por ahora, solo lo mostramos en la consola
+                console.log('--- PEDIDO AGREGADO ---');
+                console.log('Producto:', currentOrderItem.name);
+                console.log('Precio:', currentOrderItem.price);
+                console.log('Ingredientes Personalizados:', currentOrderItem.customIngredients);
+                console.log('-------------------------');
+                
+                // (Próximo paso: agregar 'currentOrderItem' al array 'fullOrder' y recalcular el total)
+                
+                // Simulamos que se agregó y cerramos el panel
+                alert(`${currentOrderItem.name} agregado al pedido!`);
+                closePanel();
+            }
+
+            // --- Asignación de Eventos ---
+            openPanelBtn.addEventListener('click', openPanel);
+            closePanelBtn.addEventListener('click', closePanel);
+            overlay.addEventListener('click', closePanel); // Cierra el panel si se da clic fuera
+            addToOrderBtn.addEventListener('click', addCurrentItemToOrder);
+
+            // --- Inicialización ---
+            populateOrderMenu(); // Llena los botones del panel al cargar la pág.
+        });
+    </script>
+
+</body>
+</html>
