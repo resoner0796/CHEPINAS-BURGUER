@@ -21,19 +21,19 @@
             --color-fondo: #F2F2F2;
             --color-texto: #333333;
             --color-texto-secundario: #555;
-            --color-blanco: #FFFFFF; /* Fondo de tarjetas, modales */
+            --color-blanco: #FFFFFF;
             --color-sombra: rgba(0, 0, 0, 0.1);
             --color-borde: #eee;
             --color-fondo-hover: #f9f9f9;
             --color-fondo-input: #FFFFFF;
         }
 
-        /* --- NUEVO: Modo Oscuro --- */
+        /* --- Modo Oscuro --- */
         body.dark-mode {
-            --color-fondo: #121212; /* Fondo principal muy oscuro */
-            --color-texto: #E0E0E0; /* Texto principal claro */
+            --color-fondo: #121212;
+            --color-texto: #E0E0E0;
             --color-texto-secundario: #a0a0a0;
-            --color-blanco: #1E1E1E; /* Fondo de tarjetas, modales */
+            --color-blanco: #1E1E1E;
             --color-sombra: rgba(255, 255, 255, 0.05);
             --color-borde: #333;
             --color-fondo-hover: #2a2a2a;
@@ -43,17 +43,15 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0; padding: 0;
-            background-color: var(--color-fondo); /* USA VARIABLE */
-            color: var(--color-texto); /* USA VARIABLE */
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* --- Header --- */
         header.main-header {
-            width: 100%;
-            background-color: var(--color-blanco); /* USA VARIABLE */
-            padding: 10px 20px;
-            box-shadow: 0 2px 5px var(--color-sombra);
+            width: 100%; background-color: var(--color-blanco);
+            padding: 10px 20px; box-shadow: 0 2px 5px var(--color-sombra);
             position: sticky; top: 0; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
             box-sizing: border-box;
@@ -79,7 +77,6 @@
         #auth-btn.panel-btn { display: block; }
         #auth-btn:hover { opacity: 0.8; }
         
-        /* NUEVO: Botón de Tema */
         #theme-toggle-btn {
             background: none;
             border: 2px solid var(--color-texto-secundario);
@@ -95,7 +92,6 @@
         #theme-toggle-btn:hover {
             transform: scale(1.1);
         }
-
 
         /* --- Vistas Principales (Contenedor) --- */
         main { padding: 20px; max-width: 1200px; margin: 20px auto; }
@@ -119,12 +115,54 @@
             overflow: hidden;
             transition: transform 0.2s ease, background-color 0.3s ease;
         }
-        .burger-card img {
+        
+        /* --- NUEVO: Slider de Imágenes --- */
+        .slider-container {
+            position: relative;
             width: 100%;
             aspect-ratio: 1 / 1;
-            object-fit: cover;
-            background-color: var(--color-fondo); /* CAMBIO */
+            background-color: var(--color-fondo);
         }
+        .slider-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .slider-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease-in-out;
+        }
+        .slider-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0; /* Oculto por defecto */
+            transition: opacity 0.2s ease;
+        }
+        .burger-card:hover .slider-btn {
+            opacity: 1; /* Aparece al hacer hover */
+        }
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
+        /* --- FIN Slider --- */
+
         .burger-card-content { padding: 20px; }
         .burger-card h2 { margin-top: 0; color: var(--color-primario); font-size: 1.5rem; }
         .burger-card .price { font-size: 1.3rem; font-weight: bold; color: var(--color-secundario); margin-bottom: 15px; }
@@ -157,14 +195,14 @@
         .order-card .items-list li.kitchen-item-card:last-child { border-bottom: none; }
         .order-card .items-list li.kitchen-item-card strong {
             font-size: 1.1rem;
-            color: var(--color-texto); /* CAMBIO */
+            color: var(--color-texto);
         }
         .order-card .items-list li.kitchen-item-card ul {
             list-style: disc;
             padding-left: 20px;
             margin: 5px 0 0 0;
             font-size: 0.9rem;
-            color: var(--color-texto-secundario); /* CAMBIO */
+            color: var(--color-texto-secundario);
         }
         .order-card .items-list li.kitchen-item-card ul li {
             border: none;
@@ -436,8 +474,8 @@
                         <input type="number" id="item-price" required>
                     </div>
                     <div class="form-group">
-                        <label for="item-image-url">URL de Imagen (Ej: hawaiana.png)</label>
-                        <input type="text" id="item-image-url" required>
+                        <label for="item-image-urls">URLs de Imagen (una por línea)</label>
+                        <textarea id="item-image-urls" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="item-ingredients">Ingredientes (uno por línea)</label>
@@ -513,8 +551,8 @@
                     <input type="number" id="edit-item-price" required>
                 </div>
                 <div class="form-group">
-                    <label for="edit-item-image-url">URL de Imagen</label>
-                    <input type="text" id="edit-item-image-url" required>
+                    <label for="edit-item-image-urls">URLs de Imagen (una por línea)</label>
+                    <textarea id="edit-item-image-urls" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="edit-item-ingredients">Ingredientes (uno por línea)</label>
@@ -561,7 +599,7 @@
             const overlay = document.getElementById('overlay');
             const authBtn = document.getElementById('auth-btn');
             const logoClickableArea = document.getElementById('logo-clickable-area');
-            const themeToggleBtn = document.getElementById('theme-toggle-btn'); // <-- NUEVO
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
             
             // --- DOM Vistas ---
             const mainViews = document.querySelectorAll('.main-view-section');
@@ -744,7 +782,7 @@
                 const newItem = {
                     name: document.getElementById('item-name').value,
                     price: parseFloat(document.getElementById('item-price').value),
-                    imageUrl: document.getElementById('item-image-url').value,
+                    imageUrls: document.getElementById('item-image-urls').value.split('\n').filter(Boolean), // CAMBIO
                     ingredients: document.getElementById('item-ingredients').value.split('\n').filter(Boolean),
                     isVisible: document.getElementById('item-is-visible').checked,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -767,11 +805,13 @@
                     
                     menuManagementList.innerHTML = '';
                     items.forEach(item => {
+                        // Asegura que imageUrls sea un array y tenga al menos una imagen
+                        const displayImage = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : 'placeholder.png'; // CAMBIO
+                        
                         const card = document.createElement('div');
                         card.className = 'menu-item-admin-card';
                         card.innerHTML = `
-                            <img src="${item.imageUrl}" alt="${item.name}">
-                            <div class="info">
+                            <img src="${displayImage}" alt="${item.name}"> <div class="info">
                                 <strong>${item.name}</strong><br>
                                 <span>$${item.price.toFixed(2)} - ${item.isVisible ? 'Visible' : 'Oculto'}</span>
                             </div>
@@ -822,8 +862,8 @@
                 
                 document.getElementById('edit-item-name').value = item.name;
                 document.getElementById('edit-item-price').value = item.price;
-                document.getElementById('edit-item-image-url').value = item.imageUrl;
-                document.getElementById('edit-item-ingredients').value = item.ingredients.join('\n');
+                document.getElementById('edit-item-image-urls').value = (item.imageUrls || []).join('\n'); // CAMBIO
+                document.getElementById('edit-item-ingredients').value = (item.ingredients || []).join('\n');
                 document.getElementById('edit-item-is-visible').checked = item.isVisible;
                 
                 editItemSaveBtn.dataset.id = id;
@@ -843,7 +883,7 @@
                 const updatedData = {
                     name: document.getElementById('edit-item-name').value,
                     price: parseFloat(document.getElementById('edit-item-price').value),
-                    imageUrl: document.getElementById('edit-item-image-url').value,
+                    imageUrls: document.getElementById('edit-item-image-urls').value.split('\n').filter(Boolean), // CAMBIO
                     ingredients: document.getElementById('edit-item-ingredients').value.split('\n').filter(Boolean),
                     isVisible: document.getElementById('edit-item-is-visible').checked
                 };
@@ -872,15 +912,58 @@
                 });
             }
 
+            // --- NUEVO: Lógica del Slider de Galería ---
+            menuGalleryContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.slider-btn');
+                if (!btn) return;
+
+                const track = btn.closest('.slider-container').querySelector('.slider-track');
+                let index = parseInt(track.dataset.index, 10);
+                const total = parseInt(track.dataset.total, 10);
+
+                if (btn.classList.contains('next')) {
+                    index = (index + 1) % total;
+                } else {
+                    // (index - 1 + total) % total es una forma segura de hacer 'mod' con números negativos
+                    index = (index - 1 + total) % total;
+                }
+
+                track.dataset.index = index;
+                track.style.transform = `translateX(-${index * 100}%)`;
+            });
+
+            // (Público) Dibuja la galería principal
             function populateMenuGallery(items) {
                 menuGalleryContainer.innerHTML = '';
                 items.forEach(item => {
                     const ingredientsHtml = item.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                    
+                    // --- NUEVO: Construye el slider ---
+                    const imagesHtml = (item.imageUrls && item.imageUrls.length > 0)
+                        ? item.imageUrls.map(url => `<img src="${url}" alt="${item.name}" class="slider-image">`).join('')
+                        : `<img src="placeholder.png" alt="Sin imagen" class="slider-image">`; // Fallback
+                    
+                    const totalImages = (item.imageUrls || []).length;
+
+                    const sliderHtml = `
+                        <div class="slider-container">
+                            <div class="slider-viewport">
+                                <div class="slider-track" data-index="0" data-total="${totalImages}">
+                                    ${imagesHtml}
+                                </div>
+                            </div>
+                            ${totalImages > 1 ? `
+                                <button class="slider-btn prev">&lt;</button>
+                                <button class="slider-btn next">&gt;</button>
+                            ` : ''}
+                        </div>
+                    `;
+                    // --- FIN Slider ---
+                    
                     const card = document.createElement('div');
                     card.className = 'burger-card';
                     card.innerHTML = `
-                        <img src="${item.imageUrl}" alt="${item.name}">
-                        <div class="burger-card-content">
+                        ${sliderHtml} <div class="burger-card-content">
                             <h2>${item.name}</h2>
                             <div class="price">$${item.price.toFixed(2)}</div>
                             <ul>${ingredientsHtml}</ul>
@@ -1232,19 +1315,18 @@
                 }
             });
             
-            // --- NUEVO: Lógica de Tema (Dark/Light) ---
+            // --- Lógica de Tema (Dark/Light) ---
             themeToggleBtn.addEventListener('click', toggleTheme);
 
             function toggleTheme() {
                 document.body.classList.toggle('dark-mode');
                 
-                // Guardar preferencia en localStorage
                 if (document.body.classList.contains('dark-mode')) {
                     localStorage.setItem('theme', 'dark');
-                    themeToggleBtn.textContent = '☀️'; // Cambia a ícono de sol
+                    themeToggleBtn.textContent = '☀️';
                 } else {
                     localStorage.setItem('theme', 'light');
-                    themeToggleBtn.textContent = '🌙'; // Cambia a ícono de luna
+                    themeToggleBtn.textContent = '🌙';
                 }
             }
 
@@ -1261,8 +1343,8 @@
 
 
             // --- Inicialización ---
-            checkPersistentTheme(); // Revisa el tema primero
-            checkPersistentLogin(); // Revisa la sesión
+            checkPersistentTheme();
+            checkPersistentLogin();
             fetchMenuAndPopulate();
             renderCart();
             showView('menu-gallery');
