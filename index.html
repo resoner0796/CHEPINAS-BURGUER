@@ -59,7 +59,7 @@
         }
         .header-side { min-width: 150px; flex-basis: 150px; }
         .header-side.left { display: flex; justify-content: flex-start; }
-        .header-side.right { display: flex; justify-content: flex-end; align-items: center; } /* <-- Alineación vertical */
+        .header-side.right { display: flex; justify-content: flex-end; align-items: center; }
         .logo-container { flex-grow: 1; text-align: center; cursor: pointer; }
         .logo-container img { max-height: 100px; width: auto; vertical-align: middle; }
         
@@ -77,29 +77,18 @@
         #auth-btn.panel-btn { display: block; }
         #auth-btn:hover { opacity: 0.8; }
         
-        /* Botón de Tema con SVG */
         #theme-toggle-btn {
             background: none;
             border: 2px solid var(--color-texto-secundario);
-            color: var(--color-texto); /* Color del SVG */
-            width: 45px;
-            height: 45px;
+            color: var(--color-texto);
+            width: 45px; height: 45px;
             border-radius: 50%;
-            cursor: pointer;
-            padding: 0; /* Sin padding interno */
-            display: flex; /* Para centrar SVG */
-            justify-content: center; /* Para centrar SVG */
-            align-items: center; /* Para centrar SVG */
+            cursor: pointer; padding: 0;
+            display: flex; justify-content: center; align-items: center;
             transition: transform 0.2s ease, border-color 0.3s ease, color 0.3s ease;
         }
-        #theme-toggle-btn svg {
-            width: 20px; /* Tamaño del icono */
-            height: 20px;
-        }
-        #theme-toggle-btn:hover {
-            transform: scale(1.1);
-        }
-
+        #theme-toggle-btn svg { width: 20px; height: 20px; fill: currentColor; } /* Usa fill: currentColor */
+        #theme-toggle-btn:hover { transform: scale(1.1); }
 
         /* --- Vistas Principales (Contenedor) --- */
         main { padding: 20px; max-width: 1200px; margin: 20px auto; }
@@ -168,22 +157,10 @@
         .order-card .timestamp { font-size: 0.85rem; color: var(--color-texto-secundario); margin-bottom: 5px; display: block; }
         .order-card .completed-at { font-size: 0.85rem; color: var(--color-verde); font-weight: bold; display: block; }
         .order-card .items-list { list-style: none; padding-left: 0; margin: 10px 0; }
-        .order-card .items-list li.kitchen-item-card {
-            padding: 10px 0;
-            border-bottom: 1px solid var(--color-borde);
-        }
+        .order-card .items-list li.kitchen-item-card { padding: 10px 0; border-bottom: 1px solid var(--color-borde); }
         .order-card .items-list li.kitchen-item-card:last-child { border-bottom: none; }
-        .order-card .items-list li.kitchen-item-card strong {
-            font-size: 1.1rem;
-            color: var(--color-texto);
-        }
-        .order-card .items-list li.kitchen-item-card ul {
-            list-style: disc;
-            padding-left: 20px;
-            margin: 5px 0 0 0;
-            font-size: 0.9rem;
-            color: var(--color-texto-secundario);
-        }
+        .order-card .items-list li.kitchen-item-card strong { font-size: 1.1rem; color: var(--color-texto); }
+        .order-card .items-list li.kitchen-item-card ul { list-style: disc; padding-left: 20px; margin: 5px 0 0 0; font-size: 0.9rem; color: var(--color-texto-secundario); }
         .order-card .items-list li.kitchen-item-card ul li { border: none; padding: 2px 0; margin: 0; }
         .order-card .status-buttons { margin-top: 15px; display: flex; gap: 10px; }
         .status-btn { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; color: var(--color-blanco); font-weight: bold; cursor: pointer; }
@@ -282,7 +259,50 @@
         .panel-header h2 { margin: 0; font-size: 1.5rem; }
         #close-panel-btn { background: none; border: none; color: var(--color-blanco); font-size: 2rem; font-weight: bold; cursor: pointer; }
         .panel-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        #order-menu-items .item-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background-color: var(--color-secundario); color: var(--color-texto); border: none; border-radius: 5px; cursor: pointer; }
+        
+        /* NUEVO: Contenedor para tarjetas de pedido */
+        #order-menu-items {
+            display: grid;
+            grid-template-columns: 1fr; /* Una columna por defecto */
+            gap: 15px;
+        }
+        /* NUEVO: Estilo de Tarjeta de Pedido */
+        .order-item-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--color-blanco);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--color-sombra);
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+        }
+        .order-item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px var(--color-sombra);
+        }
+        .order-item-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        .order-item-card .item-info {
+            flex-grow: 1;
+        }
+        .order-item-card h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            color: var(--color-texto);
+        }
+        .order-item-card .price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--color-secundario);
+            margin: 0;
+        }
+        
         #customization-section { margin-top: 20px; border-top: 2px solid var(--color-borde); padding-top: 20px; }
         #ingredients-list label {
             display: block; margin-bottom: 10px;
@@ -378,6 +398,7 @@
         </div>
         <div class="panel-content">
             <div id="order-menu-items"></div>
+            
             <div id="customization-section" style="display: none;">
                 <h3 id="custom-burger-name">Personalizar</h3>
                 <div id="ingredients-list"></div>
@@ -640,8 +661,8 @@
             const editItemSaveBtn = document.getElementById('edit-item-save-btn');
             
             // --- SVG Icons ---
-            const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.906 17.834a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 001.06-1.061l-1.591-1.59zM7.5 12a.75.75 0 01-.75.75H4.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 7.906a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 001.06-1.061l-1.591-1.59z"></path></svg>`;
-            const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-3.568 1.76-6.756 4.528-8.654a.75.75 0 01.819.162z" clip-rule="evenodd"></path></svg>`;
+            const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.906 17.834a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 001.06-1.061l-1.591-1.59zM7.5 12a.75.75 0 01-.75.75H4.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 7.906a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 001.06-1.061l-1.591-1.59z"></path></svg>`;
+            const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-3.568 1.76-6.756 4.528-8.654a.75.75 0 01.819.162z" clip-rule="evenodd"></path></svg>`;
 
 
             // --- Funciones de Modales y Paneles ---
@@ -784,7 +805,7 @@
                         items.push({ ...doc.data(), id: doc.id });
                     });
                     
-                    menuItemsAdminCache = items; // Cache completo para admin
+                    menuItemsAdminCache = items; 
                     
                     menuManagementList.innerHTML = '';
                     items.forEach(item => {
@@ -837,7 +858,7 @@
             });
             
             function openEditModal(id) {
-                const item = menuItemsAdminCache.find(i => i.id === id); // Usa el cache completo
+                const item = menuItemsAdminCache.find(i => i.id === id);
                 if (!item) {
                     alert('Error: No se encontró el producto.');
                     return;
@@ -885,13 +906,10 @@
             });
 
             // Listener para fetchMenuAndPopulate
-            let menuListenerUnsubscribe = null; // Guardará la función para detener el listener
+            let menuListenerUnsubscribe = null;
 
             function fetchMenuAndPopulate() {
-                // Si ya hay un listener, lo detenemos antes de crear uno nuevo
-                if (menuListenerUnsubscribe) {
-                    menuListenerUnsubscribe();
-                }
+                if (menuListenerUnsubscribe) { menuListenerUnsubscribe(); }
 
                 menuListenerUnsubscribe = db.collection('menu').where('isVisible', '==', true).orderBy('name').onSnapshot(snapshot => {
                     const visibleItems = [];
@@ -900,13 +918,9 @@
                     menuItemsVisibleCache = visibleItems; // Actualiza cache visible
                     
                     populateMenuGallery(visibleItems);
-                    populateOrderMenu(visibleItems); // <-- ASEGURA QUE ESTO SE LLAME
-                }, error => {
-                    console.error("Error fetching menu:", error);
-                    // Manejar el error, quizás mostrar un mensaje
-                });
+                    populateOrderMenu(visibleItems); // <-- LLAMA A LA FUNCIÓN CORREGIDA
+                }, error => { console.error("Error fetching menu:", error); });
             }
-
 
             function populateMenuGallery(items) {
                 menuGalleryContainer.innerHTML = '';
@@ -947,22 +961,31 @@
                 });
             }
             
-            // CORRECCIÓN: Asegura que esta función se llame con los items correctos
+            // --- CORRECCIÓN: Función populateOrderMenu ---
             function populateOrderMenu(items) {
-                console.log("Populating order menu with items:", items); // Log para depurar
-                orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>';
+                orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>'; // Limpia antes
                 if (!items || items.length === 0) {
                     orderMenuContainer.innerHTML += '<p style="text-align:center; color: var(--color-texto-secundario);">No hay productos disponibles.</p>';
                     return;
                 }
                 items.forEach(item => {
-                    const button = document.createElement('button');
-                    button.className = 'item-btn';
-                    button.textContent = `${item.name} - $${item.price.toFixed(2)}`;
-                    button.dataset.itemId = item.id;
-                    // Asegura pasar el objeto 'item' correcto de ESTA iteración
-                    button.addEventListener('click', () => showCustomization(item)); 
-                    orderMenuContainer.appendChild(button);
+                    const displayImage = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : 'placeholder.png'; // Primera imagen o placeholder
+                    
+                    // Crea la tarjeta en lugar del botón
+                    const card = document.createElement('div');
+                    card.className = 'order-item-card';
+                    card.dataset.itemId = item.id; // Guarda el ID en la tarjeta
+                    card.innerHTML = `
+                        <img src="${displayImage}" alt="${item.name}">
+                        <div class="item-info">
+                            <h4>${item.name}</h4>
+                            <p class="price">$${item.price.toFixed(2)}</p>
+                        </div>
+                    `;
+                    
+                    // Añade el listener a la tarjeta completa
+                    card.addEventListener('click', () => showCustomization(item)); 
+                    orderMenuContainer.appendChild(card);
                 });
             }
             
@@ -989,14 +1012,18 @@
                     return;
                 }
                 
-                currentOrderItem = { ...item, customIngredients: [...(item.ingredients || [])] }; // Asegura que ingredients sea array
+                // Busca la versión más actualizada del item en el cache visible (por si acaso)
+                const currentItemData = menuItemsVisibleCache.find(i => i.id === item.id) || item;
+
+                currentOrderItem = { ...currentItemData, customIngredients: [...(currentItemData.ingredients || [])] };
                 customBurgerName.textContent = `Personalizar: ${item.name}`;
                 ingredientsList.innerHTML = '';
-                (item.ingredients || []).forEach(ingredient => { // Asegura que ingredients sea array
+                (currentItemData.ingredients || []).forEach(ingredient => {
                     const label = document.createElement('label');
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox'; checkbox.value = ingredient; checkbox.checked = true;
                     checkbox.addEventListener('change', (e) => {
+                        if (!currentOrderItem) return; // Seguridad extra
                         if (e.target.checked) {
                             currentOrderItem.customIngredients.push(e.target.value);
                         } else {
@@ -1322,10 +1349,10 @@
                 
                 if (document.body.classList.contains('dark-mode')) {
                     localStorage.setItem('theme', 'dark');
-                    themeToggleBtn.innerHTML = sunIcon; // CAMBIO
+                    themeToggleBtn.innerHTML = sunIcon;
                 } else {
                     localStorage.setItem('theme', 'light');
-                    themeToggleBtn.innerHTML = moonIcon; // CAMBIO
+                    themeToggleBtn.innerHTML = moonIcon;
                 }
             }
 
@@ -1333,10 +1360,10 @@
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme === 'dark') {
                     document.body.classList.add('dark-mode');
-                    themeToggleBtn.innerHTML = sunIcon; // CAMBIO
+                    themeToggleBtn.innerHTML = sunIcon;
                 } else {
                     document.body.classList.remove('dark-mode');
-                    themeToggleBtn.innerHTML = moonIcon; // CAMBIO
+                    themeToggleBtn.innerHTML = moonIcon;
                 }
             }
 
@@ -1344,7 +1371,7 @@
             // --- Inicialización ---
             checkPersistentTheme();
             checkPersistentLogin();
-            fetchMenuAndPopulate(); // Esta ya llama a populateOrderMenu internamente
+            fetchMenuAndPopulate();
             renderCart();
             showView('menu-gallery');
             
