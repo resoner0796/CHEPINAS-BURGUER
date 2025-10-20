@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamburguesas - CHEPINA'S BURGUERS</title>
+    <title>Hamburguesas - Centro de Pedidos</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -16,29 +16,52 @@
             --color-verde: #28a745;
             --color-azul: #007bff;
             --color-admin: var(--color-primario);
+            
+            /* --- Modo Claro (Default) --- */
             --color-fondo: #F2F2F2;
             --color-texto: #333333;
-            --color-blanco: #FFFFFF;
+            --color-texto-secundario: #555;
+            --color-blanco: #FFFFFF; /* Fondo de tarjetas, modales */
             --color-sombra: rgba(0, 0, 0, 0.1);
+            --color-borde: #eee;
+            --color-fondo-hover: #f9f9f9;
+            --color-fondo-input: #FFFFFF;
+        }
+
+        /* --- NUEVO: Modo Oscuro --- */
+        body.dark-mode {
+            --color-fondo: #121212; /* Fondo principal muy oscuro */
+            --color-texto: #E0E0E0; /* Texto principal claro */
+            --color-texto-secundario: #a0a0a0;
+            --color-blanco: #1E1E1E; /* Fondo de tarjetas, modales */
+            --color-sombra: rgba(255, 255, 255, 0.05);
+            --color-borde: #333;
+            --color-fondo-hover: #2a2a2a;
+            --color-fondo-input: #333;
         }
 
         body {
             font-family: Arial, sans-serif;
             margin: 0; padding: 0;
-            background-color: var(--color-fondo);
-            color: var(--color-texto);
+            background-color: var(--color-fondo); /* USA VARIABLE */
+            color: var(--color-texto); /* USA VARIABLE */
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* --- Header --- */
         header.main-header {
-            width: 100%; background-color: var(--color-blanco);
-            padding: 10px 20px; box-shadow: 0 2px 5px var(--color-sombra);
+            width: 100%;
+            background-color: var(--color-blanco); /* USA VARIABLE */
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px var(--color-sombra);
             position: sticky; top: 0; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
             box-sizing: border-box;
+            transition: background-color 0.3s ease;
         }
         .header-side { min-width: 150px; flex-basis: 150px; }
-        .header-side.right { flex-basis: 150px; }
+        .header-side.left { display: flex; justify-content: flex-start; }
+        .header-side.right { display: flex; justify-content: flex-end; }
         .logo-container { flex-grow: 1; text-align: center; cursor: pointer; }
         .logo-container img { max-height: 100px; width: auto; vertical-align: middle; }
         
@@ -55,6 +78,24 @@
         }
         #auth-btn.panel-btn { display: block; }
         #auth-btn:hover { opacity: 0.8; }
+        
+        /* NUEVO: Botón de Tema */
+        #theme-toggle-btn {
+            background: none;
+            border: 2px solid var(--color-texto-secundario);
+            color: var(--color-texto);
+            font-size: 1.2rem;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s ease, border-color 0.3s ease;
+        }
+        #theme-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
 
         /* --- Vistas Principales (Contenedor) --- */
         main { padding: 20px; max-width: 1200px; margin: 20px auto; }
@@ -68,10 +109,7 @@
             min-height: 300px;
         }
         
-        #menu-gallery.active {
-            display: block;
-        }
-
+        #menu-gallery.active { display: block; }
 
         /* --- Vista: Galería Menú --- */
         .burger-card {
@@ -79,13 +117,13 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px var(--color-sombra);
             overflow: hidden;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.3s ease;
         }
         .burger-card img {
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
-            background-color: #eee;
+            background-color: var(--color-fondo); /* CAMBIO */
         }
         .burger-card-content { padding: 20px; }
         .burger-card h2 { margin-top: 0; color: var(--color-primario); font-size: 1.5rem; }
@@ -94,7 +132,7 @@
         .burger-card li { margin-bottom: 6px; }
 
         /* --- Vista: Cocina --- */
-        #kitchen-view h1 { color: var(--color-primario); text-align: center; border-bottom: 2px solid var(--color-fondo); padding-bottom: 10px; }
+        #kitchen-view h1 { color: var(--color-primario); text-align: center; border-bottom: 2px solid var(--color-borde); padding-bottom: 10px; }
         #kitchen-orders-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .order-card {
             background-color: var(--color-blanco);
@@ -102,31 +140,31 @@
             box-shadow: 0 4px 10px var(--color-sombra);
             padding: 20px;
             border-top: 5px solid var(--color-secundario);
+            transition: background-color 0.3s ease;
         }
-        .order-card.status-Pendiente { border-top-color: var(--color-secundario); }
         .order-card.status-En-Cocina { border-top-color: var(--color-azul); }
         .order-card.status-Listo { border-top-color: var(--color-verde); }
         .order-card h3 { margin: 0 0 10px 0; font-size: 1.3rem; }
         .order-card .folio { font-weight: bold; color: var(--color-primario); font-size: 1.1rem; }
         .order-card .status { font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; display: block; }
-        .order-card .timestamp { font-size: 0.85rem; color: #777; margin-bottom: 5px; display: block; }
+        .order-card .timestamp { font-size: 0.85rem; color: var(--color-texto-secundario); margin-bottom: 5px; display: block; }
         .order-card .completed-at { font-size: 0.85rem; color: var(--color-verde); font-weight: bold; display: block; }
         .order-card .items-list { list-style: none; padding-left: 0; margin: 10px 0; }
         .order-card .items-list li.kitchen-item-card {
             padding: 10px 0;
-            border-bottom: 1px solid var(--color-fondo);
+            border-bottom: 1px solid var(--color-borde);
         }
         .order-card .items-list li.kitchen-item-card:last-child { border-bottom: none; }
         .order-card .items-list li.kitchen-item-card strong {
             font-size: 1.1rem;
-            color: #000;
+            color: var(--color-texto); /* CAMBIO */
         }
         .order-card .items-list li.kitchen-item-card ul {
             list-style: disc;
             padding-left: 20px;
             margin: 5px 0 0 0;
             font-size: 0.9rem;
-            color: #444;
+            color: var(--color-texto-secundario); /* CAMBIO */
         }
         .order-card .items-list li.kitchen-item-card ul li {
             border: none;
@@ -137,19 +175,26 @@
         .status-btn { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; color: var(--color-blanco); font-weight: bold; cursor: pointer; }
         .status-btn.to-kitchen { background-color: var(--color-azul); }
         .status-btn.to-ready { background-color: var(--color-verde); }
-        #kitchen-history-container { margin-top: 40px; border-top: 2px solid #ccc; padding-top: 20px; }
+        #kitchen-history-container { margin-top: 40px; border-top: 2px solid var(--color-texto-secundario); padding-top: 20px; }
         #kitchen-history-container h2 { text-align: center; color: var(--color-texto); }
         #load-history-btn { display: block; margin: 10px auto 20px auto; padding: 12px 25px; font-size: 1rem; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; cursor: pointer; }
         #kitchen-history-list .history-day-group h3 { background-color: var(--color-blanco); padding: 10px; border-radius: 5px; border-bottom: 2px solid var(--color-primario); margin-top: 20px; }
         
         /* --- Vista: Administración --- */
-        #admin-view { padding: 20px; background-color: var(--color-blanco); border-radius: 8px; box-shadow: 0 2px 10px var(--color-sombra); }
+        #admin-view { padding: 20px; background-color: var(--color-blanco); border-radius: 8px; box-shadow: 0 2px 10px var(--color-sombra); transition: background-color 0.3s ease; }
         #admin-view h1 { color: var(--color-admin); }
-        .admin-section { margin-top: 20px; padding: 20px; border: 1px dashed #ccc; border-radius: 5px; }
+        .admin-section { margin-top: 20px; padding: 20px; border: 1px dashed var(--color-borde); border-radius: 5px; }
         .admin-section h2 { margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea {
+            width: 100%; padding: 10px; font-size: 1rem;
+            border: 1px solid var(--color-borde);
+            border-radius: 5px; box-sizing: border-box;
+            background-color: var(--color-fondo-input);
+            color: var(--color-texto);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
         .form-group textarea { min-height: 80px; }
         .form-button { background-color: var(--color-admin); color: var(--color-blanco); padding: 12px 20px; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         .form-button:hover { opacity: 0.8; }
@@ -160,26 +205,46 @@
         input:checked + .slider { background-color: var(--color-verde); }
         input:checked + .slider:before { transform: translateX(22px); }
         #menu-management-list { margin-top: 20px; }
-        .menu-item-admin-card { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .menu-item-admin-card {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--color-fondo);
+            padding: 10px; border-radius: 5px; margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
         .menu-item-admin-card img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 15px; }
         .menu-item-admin-card .info { flex-grow: 1; }
         .menu-item-admin-card .info strong { font-size: 1.1rem; }
-        .menu-item-admin-card .info span { color: #555; }
+        .menu-item-admin-card .info span { color: var(--color-texto-secundario); }
         .menu-item-admin-card .actions button { background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; }
-        .edit-menu-item-btn { color: var(--color-azul); } /* NUEVO */
+        .edit-menu-item-btn { color: var(--color-azul); }
         .delete-menu-item-btn { color: var(--color-primario); }
         
         /* Reporte de Ventas */
         #sales-report-view h3 { color: var(--color-verde); font-size: 1.5rem; }
         #today-sales-total { font-size: 3rem; font-weight: bold; color: var(--color-verde); text-align: center; margin: 10px 0 20px 0; }
-        #today-sales-list .sale-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--color-fondo); }
-        #sales-history-list .history-day-group h4 { background-color: var(--color-fondo); padding: 10px; border-radius: 5px; margin: 15px 0 10px 0; display: flex; justify-content: space-between; }
-        .sales-report-item { background: #fdfdfd; border: 1px solid #eee; border-radius: 5px; margin-bottom: 8px; }
+        #today-sales-list .sale-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--color-borde); }
+        #sales-history-list .history-day-group h4 {
+            background-color: var(--color-fondo);
+            padding: 10px; border-radius: 5px;
+            margin: 15px 0 10px 0; display: flex; justify-content: space-between;
+            transition: background-color 0.3s ease;
+        }
+        .sales-report-item {
+            background: var(--color-blanco);
+            border: 1px solid var(--color-borde);
+            border-radius: 5px; margin-bottom: 8px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
         .sales-report-item summary { display: flex; justify-content: space-between; padding: 10px 15px; cursor: pointer; font-size: 1.1rem; }
-        .sales-report-item summary:hover { background: #f9f9f9; }
+        .sales-report-item summary:hover { background: var(--color-fondo-hover); }
         .sales-report-item summary span { color: var(--color-primario); font-weight: 500; }
         .sales-report-item summary strong { color: var(--color-verde); }
-        .sales-item-details { padding: 10px 20px 15px 40px; background: #fdfdfd; border-top: 1px dashed #ddd; }
+        .sales-item-details {
+            padding: 10px 20px 15px 40px;
+            background: var(--color-blanco);
+            border-top: 1px dashed var(--color-borde);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
         .sales-item-details ul { list-style: disc; padding-left: 20px; margin: 0; }
         .sales-day-details { padding-left: 15px; border-left: 3px solid var(--color-fondo); margin-top: 10px; }
 
@@ -192,9 +257,9 @@
             position: fixed; top: 0; left: -450px;
             width: 450px; height: 100vh;
             background-color: var(--color-blanco);
-            box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
+            box-shadow: 4px 0px 15px var(--color-sombra);
             z-index: 200;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease-in-out, background-color 0.3s ease;
             display: flex; flex-direction: column;
         }
         #side-panel.open { left: 0; }
@@ -204,7 +269,7 @@
         #close-panel-btn { background: none; border: none; color: var(--color-blanco); font-size: 2rem; font-weight: bold; cursor: pointer; }
         .panel-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
         #order-menu-items .item-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; background-color: var(--color-secundario); color: var(--color-texto); border: none; border-radius: 5px; cursor: pointer; }
-        #customization-section { margin-top: 20px; border-top: 2px solid var(--color-fondo); padding-top: 20px; }
+        #customization-section { margin-top: 20px; border-top: 2px solid var(--color-borde); padding-top: 20px; }
         #ingredients-list label {
             display: block; margin-bottom: 10px;
             font-size: 1.1rem; cursor: pointer;
@@ -213,8 +278,8 @@
         #ingredients-list label:hover { background-color: var(--color-fondo); }
         #ingredients-list input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
         #add-item-to-cart-btn { width: 100%; padding: 12px; margin-top: 15px; background-color: var(--color-primario); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-        .panel-footer { padding: 20px; border-top: 2px solid var(--color-fondo); background-color: var(--color-blanco); }
-        #order-summary-list { max-height: 150px; overflow-y: auto; margin-bottom: 15px; border-bottom: 1px solid var(--color-fondo); }
+        .panel-footer { padding: 20px; border-top: 2px solid var(--color-borde); background-color: var(--color-blanco); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        #order-summary-list { max-height: 150px; overflow-y: auto; margin-bottom: 15px; border-bottom: 1px solid var(--color-borde); }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; font-size: 0.95rem; }
         .cart-item .name { font-weight: bold; }
         .delete-item-btn { background-color: #ff4d4d; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; font-size: 0.9rem; cursor: pointer; line-height: 20px; text-align: center; margin-left: 10px; }
@@ -227,7 +292,7 @@
             position: fixed; top: 0; left: -300px;
             width: 300px; height: 100vh;
             background-color: var(--color-admin);
-            box-shadow: 4px 0px 15px rgba(0,0,0,0.2);
+            box-shadow: 4px 0px 15px var(--color-sombra);
             z-index: 200;
             transition: left 0.3s ease-in-out;
             padding-top: 80px;
@@ -253,7 +318,13 @@
         /* --- Modales --- */
         .modal { display: none; position: fixed; z-index: 250; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
         .modal.show { display: flex; }
-        .modal-content { background-color: var(--color-blanco); margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%; position: relative; }
+        .modal-content {
+            background-color: var(--color-blanco);
+            margin: auto; padding: 30px; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center; max-width: 400px; width: 90%; position: relative;
+            transition: background-color 0.3s ease;
+        }
         .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; }
         .modal-content h2 { margin-top: 0; color: var(--color-texto); }
         #success-modal .icon { font-size: 4rem; color: var(--color-verde); }
@@ -263,7 +334,6 @@
         #admin-password-modal .modal-content { text-align: left; }
         #admin-pass-submit-btn { width: 100%; padding: 12px; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; }
         
-        /* NUEVO: Estilo para el botón de guardar en modal de edición */
         #edit-item-save-btn {
             background-color: var(--color-verde);
         }
@@ -279,7 +349,9 @@
         <div class="logo-container" id="logo-clickable-area">
             <img src="logo.png" alt="Logo del Negocio">
         </div>
-        <div class="header-side right"></div>
+        <div class="header-side right">
+            <button id="theme-toggle-btn">🌙</button>
+        </div>
     </header>
 
     <div id="overlay"></div>
@@ -489,6 +561,7 @@
             const overlay = document.getElementById('overlay');
             const authBtn = document.getElementById('auth-btn');
             const logoClickableArea = document.getElementById('logo-clickable-area');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn'); // <-- NUEVO
             
             // --- DOM Vistas ---
             const mainViews = document.querySelectorAll('.main-view-section');
@@ -544,7 +617,7 @@
             const loadSalesHistoryBtn = document.getElementById('load-sales-history-btn');
             const salesHistoryListEl = document.getElementById('sales-history-list');
             
-            // --- NUEVO: DOM Modal Editar ---
+            // --- DOM Modal Editar ---
             const editMenuItemModal = document.getElementById('edit-menu-item-modal');
             const editItemCloseBtn = document.getElementById('edit-item-close-btn');
             const editItemSaveBtn = document.getElementById('edit-item-save-btn');
@@ -683,7 +756,6 @@
                 } catch (err) { alert("Error al guardar producto."); }
             });
 
-            // (Admin) Carga los items del menú en el panel de admin
             function loadMenuItemsForAdmin() {
                 db.collection('menu').orderBy('name').onSnapshot(snapshot => {
                     let items = [];
@@ -691,7 +763,6 @@
                         items.push({ ...doc.data(), id: doc.id });
                     });
                     
-                    // Almacena los items completos en el cache para el modal de edición
                     menuItemsCache = items; 
                     
                     menuManagementList.innerHTML = '';
@@ -718,10 +789,9 @@
                 });
             }
             
-            // (Admin) Listeners para botones de admin (Editar, Eliminar, Ocultar)
             menuManagementList.addEventListener('click', async (e) => {
                 const target = e.target;
-                const button = target.closest('button, input'); // Captura el input (switch) o botón
+                const button = target.closest('button, input');
                 if (!button) return;
                 
                 const id = button.dataset.id;
@@ -731,7 +801,6 @@
                     await db.collection('menu').doc(id).update({ isVisible: button.checked });
                 }
                 
-                // --- NUEVO: Manejador del botón de Editar ---
                 if (button.classList.contains('edit-menu-item-btn')) {
                     openEditModal(id);
                 }
@@ -744,32 +813,26 @@
                 }
             });
             
-            // --- NUEVO: Lógica del Modal de Edición ---
             function openEditModal(id) {
-                // Busca el item en el cache completo que llenó loadMenuItemsForAdmin
                 const item = menuItemsCache.find(i => i.id === id);
                 if (!item) {
                     alert('Error: No se encontró el producto.');
                     return;
                 }
                 
-                // Rellena el formulario de edición
                 document.getElementById('edit-item-name').value = item.name;
                 document.getElementById('edit-item-price').value = item.price;
                 document.getElementById('edit-item-image-url').value = item.imageUrl;
                 document.getElementById('edit-item-ingredients').value = item.ingredients.join('\n');
                 document.getElementById('edit-item-is-visible').checked = item.isVisible;
                 
-                // Guarda el ID en el botón de guardar
                 editItemSaveBtn.dataset.id = id;
                 
                 openModal(editMenuItemModal);
             }
             
-            // Listener para el botón de cerrar del modal de edición
             editItemCloseBtn.addEventListener('click', () => closeModal(editMenuItemModal));
             
-            // Listener para el botón de GUARDAR CAMBIOS
             editItemSaveBtn.addEventListener('click', async () => {
                 const id = editItemSaveBtn.dataset.id;
                 if (!id) return;
@@ -777,7 +840,6 @@
                 editItemSaveBtn.disabled = true;
                 editItemSaveBtn.textContent = 'Guardando...';
 
-                // Recolecta los datos actualizados del formulario
                 const updatedData = {
                     name: document.getElementById('edit-item-name').value,
                     price: parseFloat(document.getElementById('edit-item-price').value),
@@ -800,10 +862,8 @@
             });
 
 
-            // (Público) Carga el menú visible para clientes
             function fetchMenuAndPopulate() {
                 db.collection('menu').where('isVisible', '==', true).orderBy('name').onSnapshot(snapshot => {
-                    // Solo actualiza el cache de items visibles para el cliente
                     const visibleItems = [];
                     snapshot.forEach(doc => visibleItems.push({ ...doc.data(), id: doc.id }));
                     
@@ -837,8 +897,7 @@
                     button.className = 'item-btn';
                     button.textContent = `${item.name} - $${item.price.toFixed(2)}`;
                     button.dataset.itemId = item.id;
-                    button.addEventListener('click', () => showCustomization(item)); // Pasa el objeto completo
-                    orderMenuContainer.appendChild(button);
+                    button.addEventListener('click', () => showCustomization(item));
                 });
             }
 
@@ -846,7 +905,6 @@
             closePanelBtn.addEventListener('click', () => closePanel(sidePanel));
 
             function showCustomization(item) {
-                // Ya no necesita buscar en el cache, el item viene directo
                 if (!item) return;
                 
                 currentOrderItem = { ...item, customIngredients: [...item.ingredients] };
@@ -897,7 +955,7 @@
             function renderCart() {
                 cartSummaryList.innerHTML = '';
                 if (fullOrder.length === 0) {
-                    cartSummaryList.innerHTML = '<p style="text-align: center; color: #888;">El carrito está vacío</p>';
+                    cartSummaryList.innerHTML = '<p style="text-align: center; color: var(--color-texto-secundario);">El carrito está vacío</p>';
                 }
                 fullOrder.forEach((item, index) => {
                     const itemEl = document.createElement('div');
@@ -1173,10 +1231,38 @@
                     loadSalesHistoryBtn.textContent = 'Cargar Historial';
                 }
             });
+            
+            // --- NUEVO: Lógica de Tema (Dark/Light) ---
+            themeToggleBtn.addEventListener('click', toggleTheme);
+
+            function toggleTheme() {
+                document.body.classList.toggle('dark-mode');
+                
+                // Guardar preferencia en localStorage
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                    themeToggleBtn.textContent = '☀️'; // Cambia a ícono de sol
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    themeToggleBtn.textContent = '🌙'; // Cambia a ícono de luna
+                }
+            }
+
+            function checkPersistentTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggleBtn.textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggleBtn.textContent = '🌙';
+                }
+            }
 
 
             // --- Inicialización ---
-            checkPersistentLogin();
+            checkPersistentTheme(); // Revisa el tema primero
+            checkPersistentLogin(); // Revisa la sesión
             fetchMenuAndPopulate();
             renderCart();
             showView('menu-gallery');
@@ -1187,7 +1273,7 @@
                 closeModal(loginModal);
                 closeModal(successModal);
                 closeModal(adminPasswordModal);
-                closeModal(editMenuItemModal); // Asegura que el modal de editar se cierre
+                closeModal(editMenuItemModal);
             });
         });
     </script>
