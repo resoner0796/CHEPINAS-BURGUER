@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamburguesas - Centro de Pedidos</title>
+    <title>Hamburguesas - CHEPINA'S BURGUERS</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -68,11 +68,8 @@
             min-height: 300px;
         }
         
-        /* CORRECCIÓN BUG VISTAS PEGADAS:
-           Asegura que solo el .active tenga display grid.
-           El .main-view-section.active se encarga del 'display: block' */
         #menu-gallery.active {
-            display: block; /* O display: grid si el contenedor interno no es suficiente */
+            display: block;
         }
 
 
@@ -152,7 +149,6 @@
         .admin-section h2 { margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        /* CORRECCIÓN CSS PASSWORD INPUT */
         .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         .form-group textarea { min-height: 80px; }
         .form-button { background-color: var(--color-admin); color: var(--color-blanco); padding: 12px 20px; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; cursor: pointer; }
@@ -170,6 +166,7 @@
         .menu-item-admin-card .info strong { font-size: 1.1rem; }
         .menu-item-admin-card .info span { color: #555; }
         .menu-item-admin-card .actions button { background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; }
+        .edit-menu-item-btn { color: var(--color-azul); } /* NUEVO */
         .delete-menu-item-btn { color: var(--color-primario); }
         
         /* Reporte de Ventas */
@@ -235,19 +232,17 @@
             transition: left 0.3s ease-in-out;
             padding-top: 80px;
             box-sizing: border-box;
-            display: flex; /* Para poner el logout abajo */
-            flex-direction: column; /* Para poner el logout abajo */
+            display: flex;
+            flex-direction: column;
         }
         #admin-panel.open { left: 0; }
         #admin-panel-nav-main {
-            flex-grow: 1; /* Empuja el logout hacia abajo */
+            flex-grow: 1;
         }
         #admin-panel .admin-nav-btn { display: block; width: 100%; padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--color-blanco); background-color: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); text-align: left; cursor: pointer; transition: background-color 0.2s; }
         #admin-panel .admin-nav-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
-        
-        /* NUEVO: Estilo para botón de logout */
         #admin-panel .logout-btn {
-            background-color: #a12020; /* Rojo más oscuro */
+            background-color: #a12020;
             border-bottom: none;
             border-top: 1px solid rgba(255,255,255,0.3);
         }
@@ -267,6 +262,11 @@
         #login-submit-btn { width: 100%; padding: 12px; background-color: var(--color-primario); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; }
         #admin-password-modal .modal-content { text-align: left; }
         #admin-pass-submit-btn { width: 100%; padding: 12px; background-color: var(--color-admin); color: var(--color-blanco); border: none; border-radius: 5px; font-size: 1.1rem; cursor: pointer; }
+        
+        /* NUEVO: Estilo para el botón de guardar en modal de edición */
+        #edit-item-save-btn {
+            background-color: var(--color-verde);
+        }
 
     </style>
 </head>
@@ -426,6 +426,39 @@
             <button id="admin-pass-submit-btn">Desbloquear</button>
         </div>
     </div>
+    
+    <div id="edit-menu-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn" id="edit-item-close-btn">&times;</span>
+            <h2>Editar Producto</h2>
+            <form id="edit-menu-item-form">
+                <div class="form-group">
+                    <label for="edit-item-name">Nombre</label>
+                    <input type="text" id="edit-item-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-price">Precio</label>
+                    <input type="number" id="edit-item-price" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-image-url">URL de Imagen</label>
+                    <input type="text" id="edit-item-image-url" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-ingredients">Ingredientes (uno por línea)</label>
+                    <textarea id="edit-item-ingredients" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-item-is-visible">Visible en Menú</label>
+                    <label class="switch">
+                        <input type="checkbox" id="edit-item-is-visible">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button type="button" id="edit-item-save-btn" class="form-button">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
 
 
     <script>
@@ -474,7 +507,7 @@
             const navCreateBtn = document.getElementById('admin-nav-create');
             const navKitchenBtn = document.getElementById('admin-nav-kitchen');
             const navAdminBtn = document.getElementById('admin-nav-admin');
-            const navLogoutBtn = document.getElementById('admin-nav-logout'); // <-- NUEVO
+            const navLogoutBtn = document.getElementById('admin-nav-logout');
             
             // --- DOM Panel Pedido ---
             const orderMenuContainer = document.getElementById('order-menu-items');
@@ -510,6 +543,12 @@
             const todaySalesListEl = document.getElementById('today-sales-list');
             const loadSalesHistoryBtn = document.getElementById('load-sales-history-btn');
             const salesHistoryListEl = document.getElementById('sales-history-list');
+            
+            // --- NUEVO: DOM Modal Editar ---
+            const editMenuItemModal = document.getElementById('edit-menu-item-modal');
+            const editItemCloseBtn = document.getElementById('edit-item-close-btn');
+            const editItemSaveBtn = document.getElementById('edit-item-save-btn');
+
 
             // --- Funciones de Modales y Paneles ---
             function openPanel(panel) { panel.classList.add('open'); overlay.classList.add('show'); }
@@ -573,7 +612,7 @@
                 const pass = passwordInput.value;
                 if (user === 'CHEPINAS' && pass === 'BURGUERS') {
                     isLoggedIn = true;
-                    localStorage.setItem('isLoggedIn', 'true'); // <-- NUEVO: Guardar en storage
+                    localStorage.setItem('isLoggedIn', 'true');
                     authBtn.classList.add('panel-btn');
                     closeModal(loginModal);
                     loginErrorMsg.style.display = 'none';
@@ -584,20 +623,18 @@
                 }
             }
             
-            // --- NUEVO: Lógica de Logout ---
             navLogoutBtn.addEventListener('click', logout);
             
             function logout() {
                 isLoggedIn = false;
-                isAdminViewUnlocked = false; // Resetea el candado de admin
-                localStorage.removeItem('isLoggedIn'); // <-- NUEVO: Borra la sesión
+                isAdminViewUnlocked = false;
+                localStorage.removeItem('isLoggedIn');
                 
-                authBtn.classList.remove('panel-btn'); // Oculta el botón "PANEL"
-                closePanel(adminPanel); // Cierra el panel
-                showView('menu-gallery'); // Regresa al menú
+                authBtn.classList.remove('panel-btn');
+                closePanel(adminPanel);
+                showView('menu-gallery');
             }
 
-            // --- NUEVO: Checar Sesión al Cargar ---
             function checkPersistentLogin() {
                 if (localStorage.getItem('isLoggedIn') === 'true') {
                     isLoggedIn = true;
@@ -646,11 +683,19 @@
                 } catch (err) { alert("Error al guardar producto."); }
             });
 
+            // (Admin) Carga los items del menú en el panel de admin
             function loadMenuItemsForAdmin() {
                 db.collection('menu').orderBy('name').onSnapshot(snapshot => {
-                    menuManagementList.innerHTML = '';
+                    let items = [];
                     snapshot.forEach(doc => {
-                        const item = { ...doc.data(), id: doc.id };
+                        items.push({ ...doc.data(), id: doc.id });
+                    });
+                    
+                    // Almacena los items completos en el cache para el modal de edición
+                    menuItemsCache = items; 
+                    
+                    menuManagementList.innerHTML = '';
+                    items.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'menu-item-admin-card';
                         card.innerHTML = `
@@ -664,6 +709,7 @@
                                     <input type="checkbox" class="toggle-visibility-btn" data-id="${item.id}" ${item.isVisible ? 'checked' : ''}>
                                     <span class="slider"></span>
                                 </label>
+                                <button class="edit-menu-item-btn" data-id="${item.id}">✏️</button>
                                 <button class="delete-menu-item-btn" data-id="${item.id}">🗑️</button>
                             </div>
                         `;
@@ -672,35 +718,103 @@
                 });
             }
             
+            // (Admin) Listeners para botones de admin (Editar, Eliminar, Ocultar)
             menuManagementList.addEventListener('click', async (e) => {
                 const target = e.target;
-                const id = target.dataset.id;
+                const button = target.closest('button, input'); // Captura el input (switch) o botón
+                if (!button) return;
                 
-                if (target.classList.contains('toggle-visibility-btn')) {
-                    await db.collection('menu').doc(id).update({ isVisible: target.checked });
+                const id = button.dataset.id;
+                if (!id) return;
+                
+                if (button.classList.contains('toggle-visibility-btn')) {
+                    await db.collection('menu').doc(id).update({ isVisible: button.checked });
                 }
                 
-                if (target.classList.contains('delete-menu-item-btn') || target.closest('.delete-menu-item-btn')) {
-                    const deleteId = target.dataset.id || target.closest('.delete-menu-item-btn').dataset.id;
+                // --- NUEVO: Manejador del botón de Editar ---
+                if (button.classList.contains('edit-menu-item-btn')) {
+                    openEditModal(id);
+                }
+                
+                if (button.classList.contains('delete-menu-item-btn')) {
                     if (confirm('¿Seguro que quieres eliminar este producto?')) {
-                        await db.collection('menu').doc(deleteId).delete();
+                        await db.collection('menu').doc(id).delete();
                         showSuccessModal('Producto eliminado.');
                     }
                 }
             });
+            
+            // --- NUEVO: Lógica del Modal de Edición ---
+            function openEditModal(id) {
+                // Busca el item en el cache completo que llenó loadMenuItemsForAdmin
+                const item = menuItemsCache.find(i => i.id === id);
+                if (!item) {
+                    alert('Error: No se encontró el producto.');
+                    return;
+                }
+                
+                // Rellena el formulario de edición
+                document.getElementById('edit-item-name').value = item.name;
+                document.getElementById('edit-item-price').value = item.price;
+                document.getElementById('edit-item-image-url').value = item.imageUrl;
+                document.getElementById('edit-item-ingredients').value = item.ingredients.join('\n');
+                document.getElementById('edit-item-is-visible').checked = item.isVisible;
+                
+                // Guarda el ID en el botón de guardar
+                editItemSaveBtn.dataset.id = id;
+                
+                openModal(editMenuItemModal);
+            }
+            
+            // Listener para el botón de cerrar del modal de edición
+            editItemCloseBtn.addEventListener('click', () => closeModal(editMenuItemModal));
+            
+            // Listener para el botón de GUARDAR CAMBIOS
+            editItemSaveBtn.addEventListener('click', async () => {
+                const id = editItemSaveBtn.dataset.id;
+                if (!id) return;
+                
+                editItemSaveBtn.disabled = true;
+                editItemSaveBtn.textContent = 'Guardando...';
 
+                // Recolecta los datos actualizados del formulario
+                const updatedData = {
+                    name: document.getElementById('edit-item-name').value,
+                    price: parseFloat(document.getElementById('edit-item-price').value),
+                    imageUrl: document.getElementById('edit-item-image-url').value,
+                    ingredients: document.getElementById('edit-item-ingredients').value.split('\n').filter(Boolean),
+                    isVisible: document.getElementById('edit-item-is-visible').checked
+                };
+                
+                try {
+                    await db.collection('menu').doc(id).update(updatedData);
+                    closeModal(editMenuItemModal);
+                    showSuccessModal('¡Producto actualizado con éxito!');
+                } catch (err) {
+                    console.error("Error actualizando: ", err);
+                    alert("Error al guardar los cambios.");
+                } finally {
+                    editItemSaveBtn.disabled = false;
+                    editItemSaveBtn.textContent = 'Guardar Cambios';
+                }
+            });
+
+
+            // (Público) Carga el menú visible para clientes
             function fetchMenuAndPopulate() {
                 db.collection('menu').where('isVisible', '==', true).orderBy('name').onSnapshot(snapshot => {
-                    menuItemsCache = [];
-                    snapshot.forEach(doc => menuItemsCache.push({ ...doc.data(), id: doc.id }));
-                    populateMenuGallery();
-                    populateOrderMenu();
+                    // Solo actualiza el cache de items visibles para el cliente
+                    const visibleItems = [];
+                    snapshot.forEach(doc => visibleItems.push({ ...doc.data(), id: doc.id }));
+                    
+                    populateMenuGallery(visibleItems);
+                    populateOrderMenu(visibleItems);
                 });
             }
 
-            function populateMenuGallery() {
+            function populateMenuGallery(items) {
                 menuGalleryContainer.innerHTML = '';
-                menuItemsCache.forEach(item => {
+                items.forEach(item => {
                     const ingredientsHtml = item.ingredients.map(ing => `<li>${ing}</li>`).join('');
                     const card = document.createElement('div');
                     card.className = 'burger-card';
@@ -716,14 +830,14 @@
                 });
             }
 
-            function populateOrderMenu() {
+            function populateOrderMenu(items) {
                 orderMenuContainer.innerHTML = '<h3>Selecciona un Producto</h3>';
-                menuItemsCache.forEach(item => {
+                items.forEach(item => {
                     const button = document.createElement('button');
                     button.className = 'item-btn';
                     button.textContent = `${item.name} - $${item.price.toFixed(2)}`;
                     button.dataset.itemId = item.id;
-                    button.addEventListener('click', () => showCustomization(item.id));
+                    button.addEventListener('click', () => showCustomization(item)); // Pasa el objeto completo
                     orderMenuContainer.appendChild(button);
                 });
             }
@@ -731,8 +845,8 @@
             // --- Lógica del Panel de Pedido (Creación) ---
             closePanelBtn.addEventListener('click', () => closePanel(sidePanel));
 
-            function showCustomization(itemId) {
-                const item = menuItemsCache.find(i => i.id === itemId);
+            function showCustomization(item) {
+                // Ya no necesita buscar en el cache, el item viene directo
                 if (!item) return;
                 
                 currentOrderItem = { ...item, customIngredients: [...item.ingredients] };
@@ -1062,7 +1176,7 @@
 
 
             // --- Inicialización ---
-            checkPersistentLogin(); // <-- NUEVO: Revisa el storage al cargar
+            checkPersistentLogin();
             fetchMenuAndPopulate();
             renderCart();
             showView('menu-gallery');
@@ -1073,6 +1187,7 @@
                 closeModal(loginModal);
                 closeModal(successModal);
                 closeModal(adminPasswordModal);
+                closeModal(editMenuItemModal); // Asegura que el modal de editar se cierre
             });
         });
     </script>
